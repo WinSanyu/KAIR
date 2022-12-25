@@ -57,6 +57,18 @@ by Kai Zhang (12/Dec./2019)
 # --------------------------------------------
 """
 
+class QModel(torch.nn.Module):
+    def __init__(self):
+        super(QModel, self).__init__()
+        self.quant = torch.quantization.QuantStub()
+        self.model = None
+        self.dequant = torch.quantization.DeQuantStub()
+    
+    def forward(self, x):
+        x = self.quant(x)
+        x = self.model(x)
+        x = self.dequant(x)
+        return x
 
 def main():
 
@@ -105,7 +117,8 @@ def main():
     logger = logging.getLogger(logger_name)
 
     need_H = True if H_path is not None else False
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    # device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = 'cpu'
 
     # ----------------------------------------
     # load model
@@ -118,6 +131,15 @@ def main():
     for k, v in model.named_parameters():
         v.requires_grad = False
     model = model.to(device)
+
+    qmodel = QModel()
+    qmodel.model = model
+    qmodel = qmodel.to(device)
+    qmodel.eval()
+    qmodel.qconfig = torch.quantization.get_default_qconfig('qnnpack')
+    qmodel_fused = torch.quantization.fuse_modules(qmodel, [['conv', 'relu']])
+    qmodel_prepared = torch.quantization.prepare(qmodel_fused)
+        
     logger.info('Model path: {:s}'.format(model_path))
     number_parameters = sum(map(lambda x: x.numel(), model.parameters()))
     logger.info('Params number: {}'.format(number_parameters))
@@ -161,6 +183,7 @@ def main():
 
         if not x8:
             img_E = model(img_L)
+            qmodel_prepared(img_L)
         else:
             img_E = utils_model.test_mode(model, img_L, mode=3)
 
@@ -196,6 +219,9 @@ def main():
         ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
         ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
         logger.info('Average PSNR/SSIM(RGB) - {} - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(result_name, ave_psnr, ave_ssim))
+    
+    model_int8 = torch.quantization.convert(qmodel_prepared)
+    print(model_int8)
 
 if __name__ == '__main__':
 
