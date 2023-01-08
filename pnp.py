@@ -25,7 +25,7 @@ def get_opt(json_path):
 
 def get_network(opt):
     model = define_G(opt)
-    model_path = opt['path']['pretrained_netG']
+    model_path = opt['pnp']['denoisor_pth'] # opt['path']['pretrained_netG']
     model.load_state_dict(torch.load(model_path), strict=True)
     model.eval()
     for k, v in model.named_parameters():
@@ -107,6 +107,7 @@ class PNP_ADMM(nn.Module):
 
 def evaluate(opt):
     '''Given opt, evaluate on testset'''
+    print(opt)
     device = 'cuda'
     # test_loader = get_test_loader(opt)
     network = get_network(opt)
@@ -172,7 +173,7 @@ def evaluate(opt):
         ssim = util.calculate_ssim(img_E, img_H, border=0)
         test_results['psnr'].append(psnr)
         test_results['ssim'].append(ssim)
-        logger.info('{:s} - PSNR: {:.2f} dB; SSIM: {:.4f}.'.format(img_name+ext, psnr, ssim))
+        #logger.info('{:s} - PSNR: {:.2f} dB; SSIM: {:.4f}.'.format(img_name+ext, psnr, ssim))
 
     ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
     ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
@@ -189,11 +190,12 @@ def gen_opts(json_path):
         for denoisor_sigma in pnp_opt['denoisor_sigma']:
             opt = deepcopy(all_opt)
             opt['pnp']['lamb'] = lamb
+            opt['pnp']['denoisor_pth'] = pnp_opt['denoisor_sigma'][str(denoisor_sigma)]
             opt['pnp']['denoisor_sigma'] = denoisor_sigma
             opts.append(opt)
     return opts
 
-def search_args(json_path='options/pnp/pnp_drunet.json'):
+def search_args(json_path='options/pnp/pnp_sndncnn.json'):
     opts = gen_opts(json_path)
     opt_max_psnr = None
     opt_max_ssim = None
