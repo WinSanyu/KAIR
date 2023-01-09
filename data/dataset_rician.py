@@ -9,10 +9,10 @@ import utils.utils_image as util
 class DatasetRician(data.Dataset):
     """
     # -----------------------------------------
-    # Get L/H for denosing on AWGN with fixed sigma.
+    # Get L/H for denosing on blind Rician noise.
     # Only dataroot_H is needed.
     # -----------------------------------------
-    # e.g., DnCNN
+    # e.g., DnCNN, RicianNet, WDNN
     # -----------------------------------------
     """
 

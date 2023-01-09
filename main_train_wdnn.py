@@ -101,12 +101,10 @@ def main(json_path='options/train_wdnn.json'):
     # 2) creat_dataloader for train and test
     # ----------------------------------------
     dataset_type = opt['datasets']['train']['dataset_type']
-    print(opt['datasets'])
     opt['datasets']['train']['sigma'] = opt['sigma']
     opt['datasets']['test']['sigma_test'] = opt['sigma_test']
     for phase, dataset_opt in opt['datasets'].items():
         if phase == 'train':
-            print(dataset_opt)
             train_set = define_Dataset(dataset_opt)
             train_size = int(math.ceil(len(train_set) / dataset_opt['dataloader_batch_size']))
             logger.info('Number of train images: {:,d}, iters: {:,d}'.format(len(train_set), train_size))
@@ -117,7 +115,6 @@ def main(json_path='options/train_wdnn.json'):
                                       drop_last=True,
                                       pin_memory=True)
         elif phase == 'test':
-            print(dataset_opt)
             test_set = define_Dataset(dataset_opt)
             test_loader = DataLoader(test_set, batch_size=1,
                                      shuffle=False, num_workers=1,
@@ -219,7 +216,7 @@ def main(json_path='options/train_wdnn.json'):
                     current_psnr = util.calculate_psnr(E_img, H_img, border=border)
                     current_ssim = util.calculate_ssim(E_img, H_img, border=border)
 
-                    logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB; SSIM: {:.4f}.'.format(idx, image_name_ext, current_psnr, current_ssim))
+                    logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB; SSIM: {:.4f}'.format(idx, image_name_ext, current_psnr, current_ssim))
 
                     avg_psnr += current_psnr
                     avg_ssim += current_ssim
