@@ -44,6 +44,10 @@ def define_G(opt):
                    nb=opt_net['nb'],  # total number of conv layers
                    act_mode=opt_net['act_mode'])
 
+    elif net_type == 'sndncnn':
+        from models.network_sndncnn import SNDnCNN as net
+        netG = net(opt_net['in_nc'], opt_net['nb'])
+
     # ----------------------------------------
     # FFDNet
     # ----------------------------------------
