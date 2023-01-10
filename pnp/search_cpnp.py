@@ -2,8 +2,8 @@ from copy import deepcopy
 import sys
 sys.path.append("..") 
 
-from pnp.eval_sndncnn_pnp import unpack_opt, eval
-from pnp.util_pnp import get_opt, gen_logger
+from pnp.eval_cpnp import unpack_opt, eval
+from pnp.util_pnp import get_opt, gen_logger, save_opt
 
 def gen_opts(json_path):
     '''Generate all opt grids to be searched'''
@@ -37,7 +37,9 @@ def search_args(json_path='../options/pnp/search_sndncnn.json'):
             max_ssim = cur_ssim
             opt_max_ssim = deepcopy(opt)
 
-    logger.info('Best Average PSNR/SSIM(RGB) - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(max_psnr, max_ssim))
+    logger.info('Best Average PSNR/SSIM - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(max_psnr, max_ssim))
+    save_opt(opt_max_psnr, 'cpnp_psnr.json')
+    save_opt(opt_max_psnr, 'cpnp_ssim.json')
     
 if __name__ == '__main__':
     search_args()

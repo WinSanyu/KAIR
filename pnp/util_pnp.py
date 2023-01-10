@@ -32,6 +32,12 @@ def get_network_eval(opt):
         v.requires_grad = False
     return model
 
+def save_opt(opt, pth='sndncnn.json'):
+    import json
+    with open(pth, 'w') as f:
+        json.dump(opt, f)
+
+
 # def get_test_loader(opt):
 #     dataset_opt = opt['datasets']['test']
 #     dataset_opt['sigma_test'] = opt['sigma_test']

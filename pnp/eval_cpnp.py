@@ -133,7 +133,7 @@ def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
 
     ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
     ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])
-    logger.info('Average PSNR/SSIM(RGB) - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(ave_psnr, ave_ssim))
+    logger.info('Average PSNR/SSIM - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(ave_psnr, ave_ssim))
     
     return ave_psnr, ave_ssim
 
