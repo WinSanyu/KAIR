@@ -8,47 +8,27 @@ from torch.utils.data import DataLoader
 sys.path.append("..") 
 
 from utils import utils_image as util
-
-from data.select_dataset import define_Dataset
-from models.select_network import define_G
-
-def get_network(opt):
-    model = define_G(opt)
-    model_path = opt['pnp']['denoisor_pth'] # opt['path']['pretrained_netG']
-    model.load_state_dict(torch.load(model_path), strict=True)
-    model.eval()
-    for k, v in model.named_parameters():
-        v.requires_grad = False
-    return model
-
-# def get_test_loader(opt):
-#     dataset_opt = opt['datasets']['test']
-#     dataset_opt['sigma_test'] = opt['sigma_test']
-#     test_set = define_Dataset(dataset_opt)
-#     test_loader = DataLoader(test_set, batch_size=1,
-#                              shuffle=False, num_workers=1,
-#                              drop_last=False, pin_memory=True)
-#     return test_loader
+from pnp.util_pnp import get_network_eval
 
 class PNP_ADMM(nn.Module):
-    def __init__(self, model, pnp_args):
+    def __init__(self, model, lamb, admm_iter_num, irl1_iter_num, mu, eps):
         super(PNP_ADMM, self).__init__()
+
         self.model = model
 
-        self.lamb = pnp_args['lamb']
-        self.sigma2 = pnp_args['sigma2']
-        self.denoisor_sigma = pnp_args['denoisor_sigma']
-        self.irl1_iter_num = pnp_args['irl1_iter_num']
-        self.eps = pnp_args['eps']
-        self.admm_iter_num = pnp_args['admm_iter_num']
-        self.mu = pnp_args['mu']
+        self.lamb = lamb
+        # self.denoisor_sigma = pnp_args['denoisor_sigma']
+        self.admm_iter_num = admm_iter_num
+        self.irl1_iter_num = irl1_iter_num
+        self.mu = mu
+        self.eps = eps
 
         self.max_psnr = 0.
         self.max_ssim = 0.
 
-    def model_forward(self, data):
+    def model_forward(self, x):
         # TODO: denoisor_sigma
-        predict = self.model(data['L'])
+        predict = self.model(x)
         return predict
 
     def IRL1(self, f, u, v, b):
@@ -115,22 +95,21 @@ def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
         img_L = util.single2tensor4(img_L)
         img_L = img_L.to(device)
 
+        # --------------------------------
+        # (2) img_H
+        # --------------------------------
+
+        img_H = util.imread_uint(H_paths[idx], n_channels=n_channels)
+        img_H = img_H.squeeze()
+
         # ------------------------------------
-        # (2) img_E
+        # (3) img_E
         # ------------------------------------
 
 
         img_E = pnp_admm(img_L)
 
         img_E = util.tensor2uint(img_E)
-
-
-        # --------------------------------
-        # (3) img_H
-        # --------------------------------
-
-        img_H = util.imread_uint(H_paths[idx], n_channels=n_channels)
-        img_H = img_H.squeeze()
 
         # --------------------------------
         # PSNR and SSIM
@@ -148,11 +127,17 @@ def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
     return ave_psnr, ave_ssim
 
 def unpack_opt(opt):
-    device = 'cuda'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # test_loader = get_test_loader(opt)
-    network = get_network(opt)
+    network = get_network_eval(opt)
     network.to(device)
-    pnp_admm = PNP_ADMM(network, opt['pnp'])
+
+    lamb = opt['pnp']['lamb']
+    admm_iter_num = opt['pnp']['admm_iter_num']
+    irl1_iter_num = opt['pnp']['irl1_iter_num']
+    mu = opt['pnp']['mu']
+    eps = opt['pnp']['eps']
+    pnp_admm = PNP_ADMM(network, lamb, admm_iter_num, irl1_iter_num, mu, eps)
 
     H_paths = opt['datasets']['test']['dataroot_H']
     H_paths = util.get_image_paths(H_paths)
@@ -160,3 +145,9 @@ def unpack_opt(opt):
     noise_level = opt['sigma_test']
     n_channels = opt['n_channels']
     return pnp_admm, H_paths, L_paths, noise_level, n_channels, device
+
+if __name__ == "__main__":
+    from pnp.util_pnp import get_opt, gen_logger
+    opt = get_opt('../options/pnp/pnp_sndncnn.json')
+    logger = gen_logger(opt)
+    eval(*unpack_opt(opt), logger)

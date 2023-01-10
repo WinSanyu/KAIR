@@ -1,21 +1,9 @@
-# import matplotlib.pyplot as plt
-# from torchvision.transforms import ToPILImage
-# from tqdm import tqdm
-import logging
 from copy import deepcopy
-import os.path
 import sys
 sys.path.append("..") 
 
-from utils import utils_option as option
-from utils import utils_image as util
-from utils import utils_logger
 from pnp.eval_sndncnn_pnp import unpack_opt, eval
-
-def get_opt(json_path):
-    opt = option.parse(json_path, is_train=False)
-    opt = option.dict_to_nonedict(opt)
-    return opt
+from pnp.util_pnp import get_opt, gen_logger
 
 def gen_opts(json_path):
     '''Generate all opt grids to be searched'''
@@ -30,13 +18,6 @@ def gen_opts(json_path):
             opt['pnp']['denoisor_sigma'] = denoisor_sigma
             opts.append(opt)
     return opts
-
-def gen_logger(opt):
-    util.mkdirs((path for key, path in opt['path'].items() if 'pretrained' not in key))
-    logger_name = 'pnp'
-    utils_logger.logger_info(logger_name, os.path.join(opt['path']['log'], logger_name+'.log'))
-    logger = logging.getLogger(logger_name)
-    return logger
 
 def search_args(json_path='../options/pnp/search_sndncnn.json'):
     opts = gen_opts(json_path)
