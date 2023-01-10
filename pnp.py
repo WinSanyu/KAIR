@@ -107,7 +107,6 @@ class PNP_ADMM(nn.Module):
 
 def evaluate(opt):
     '''Given opt, evaluate on testset'''
-    # print(opt)
     device = 'cuda'
     # test_loader = get_test_loader(opt)
     network = get_network(opt)
@@ -139,7 +138,9 @@ def evaluate(opt):
         img_L = util.uint2single(img_L)
 
         np.random.seed(seed=0)  # for reproducibility
-        img_L += np.random.normal(0, noise_level_img/255., img_L.shape)
+        noise1 = np.random.normal(0, noise_level_img/255., img_L.shape)
+        noise2 = np.random.normal(0, noise_level_img/255., img_L.shape)
+        img_L = np.sqrt( (img_L + noise1)**2 + noise2**2 )
 
         # util.imshow(util.single2uint(img_L), title='Noisy image with noise level {}'.format(noise_level_img)) if show_img else None
 
