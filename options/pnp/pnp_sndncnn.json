@@ -2,6 +2,8 @@
     "task": "sndncnn"  //  root/task/images-models-options
     , "model": "plain" // "plain"
     , "gpu_ids": [0]
+    , "sigma": 12.75
+    , "sigma_test": 12.75
   
     , "scale": 1       // broadcast to "netG" if SISR
     , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
@@ -25,17 +27,17 @@
       , "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "fdncnn"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "testsets/set12"  // path of H testing dataset
+        , "dataroot_H": "/mnt/d/Document/brain4/"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
     }
   
     , "netG": {
-      "net_type": "drunet" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
-      , "in_nc": 2        // input channel number
+      "net_type": "sndncnn" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
+      , "in_nc": 1        // input channel number
       , "out_nc": 1       // ouput channel number
       , "nc": [64, 128, 256, 512]          // 64 for "dncnn"
-      , "nb": 4          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
+      , "nb": 17          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
       , "gc": 32          // unused
       , "ng": 2           // unused
       , "reduction": 16  // unused

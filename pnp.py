@@ -107,7 +107,7 @@ class PNP_ADMM(nn.Module):
 
 def evaluate(opt):
     '''Given opt, evaluate on testset'''
-    print(opt)
+    # print(opt)
     device = 'cuda'
     # test_loader = get_test_loader(opt)
     network = get_network(opt)
@@ -144,8 +144,8 @@ def evaluate(opt):
         # util.imshow(util.single2uint(img_L), title='Noisy image with noise level {}'.format(noise_level_img)) if show_img else None
 
         img_L = util.single2tensor4(img_L)
-        noise_level_map = torch.ones((1, 1, img_L.size(2), img_L.size(3)), dtype=torch.float).mul_(noise_level_img/255.)
-        img_L = torch.cat((img_L, noise_level_map), dim=1)
+        #noise_level_map = torch.ones((1, 1, img_L.size(2), img_L.size(3)), dtype=torch.float).mul_(noise_level_img/255.)
+        #img_L = torch.cat((img_L, noise_level_map), dim=1)
         img_L = img_L.to(device)
 
         # ------------------------------------
