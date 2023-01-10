@@ -14,7 +14,7 @@
     , "datasets": {
       "test": {
         "name": "test_dataset"            // just name
-        , "dataset_type": "fdncnn"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+        , "dataset_type": "fdncnn"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
         , "dataroot_H": "/mnt/d/Document/brain4/"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
@@ -22,11 +22,11 @@
   
     , "netG": {
       "net_type": "sndncnn" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
-      , "in_nc": 1        // input channel number
-      , "nb": 17          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
+      , "in_nc": 1          // input channel number
+      , "nb": 17            // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
     }
   
-    , "train": { }        // unused
+    , "train": { }          // unused
     
     , "pnp": {
       "lamb": 100 // 690
@@ -39,7 +39,7 @@
       //   , "25": "/mnt/d/Document/model_zoo/epoch44_noise25_PSNR30.63_SSIM0.86.pth"
       // }
       , "denoisor_pth": "/mnt/d/Document/model_zoo/epoch37_noise20_PSNR31.61_SSIM0.88.pth"
-      , "admm_iter_num": 1
+      , "admm_iter_num": 3
       , "irl1_iter_num": 20
       , "mu": 0.5
       , "eps": 1e-5

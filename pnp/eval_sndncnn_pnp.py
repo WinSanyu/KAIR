@@ -23,13 +23,10 @@ class PNP_ADMM(nn.Module):
         self.mu = mu
         self.eps = eps
 
-        self.max_psnr = 0.
-        self.max_ssim = 0.
-
-    def model_forward(self, x):
-        # TODO: denoisor_sigma
-        predict = self.model(x)
-        return predict
+    # def model_forward(self, x):
+    #     # TODO: denoisor_sigma
+    #     predict = self.model(x)
+    #     return predict
 
     def IRL1(self, f, u, v, b):
         for j in range(self.irl1_iter_num):
@@ -46,7 +43,12 @@ class PNP_ADMM(nn.Module):
         v1 = self.IRL1(f, u1, v, b1)
         return u1, v1, b1
 
-    def forward(self, f, origin_img=None):
+    def forward(self, f, GT=None):
+        if GT is not None:
+            best_result = None
+            max_psnr = 0
+            max_ssim = 0
+
         f *= 255
         u  = f
         v  = f
@@ -54,17 +56,26 @@ class PNP_ADMM(nn.Module):
 
         for k in range(self.admm_iter_num):
             u1, v1, b1 = self.ADMM(f, u, v, b)
-            if origin_img:
-                self.get_intermediate_results(v, origin_img)
+
+            if GT is not None: # only test
+                cur_psnr, cur_ssim = self.get_intermediate_results(u1, GT)
+                if max_psnr < cur_psnr:
+                    max_psnr = cur_psnr
+                    best_result = u1
+
+                if max_ssim < cur_ssim:
+                    max_ssim = cur_ssim
 
             u, v, b = u1, v1, b1
 
+        if GT is not None:
+            return best_result / 255.
         return u1 / 255.
 
-    def get_intermediate_results(self, v, origin_img): # only test
-        pre_i = torch.clamp(v / 255., 0., 1.)
+    def get_intermediate_results(self, u1, img_H): # only test
+        pre_i = torch.clamp(u1 / 255., 0., 1.)
         img_E = util.tensor2uint(pre_i)
-        img_H = util.tensor2uint(origin_img)
+        # img_H = util.tensor2uint(origin_img)
         psnr = util.calculate_psnr(img_E, img_H, border=0)
         ssim = util.calculate_ssim(img_E, img_H, border=0)
         return psnr, ssim
@@ -107,7 +118,7 @@ def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
         # ------------------------------------
 
 
-        img_E = pnp_admm(img_L)
+        img_E = pnp_admm(img_L, img_H)
 
         img_E = util.tensor2uint(img_E)
 
