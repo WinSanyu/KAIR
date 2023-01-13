@@ -25,11 +25,6 @@ class PNP_ADMM(nn.Module):
         self.mu = mu
         self.eps = eps
 
-    # def model_forward(self, x):
-    #     # TODO: denoisor_sigma
-    #     predict = self.model(x)
-    #     return predict
-
     def ADMM(self, f, u, v, b):
         return admm(self.model, f, u, v, b, 
                     self.sigma, self.lamb, 
@@ -47,9 +42,11 @@ class PNP_ADMM(nn.Module):
         b = torch.zeros(f.shape, device=f.device)
 
         for k in range(self.admm_iter_num):
+            
             u1, v1, b1 = self.ADMM(f, u, v, b)
 
-            if GT is not None: # only test
+            # check intermediate results
+            if GT is not None:
                 cur_psnr, cur_ssim = self.get_intermediate_results(u1, GT)
                 if max_psnr < cur_psnr:
                     max_psnr = cur_psnr
@@ -64,7 +61,7 @@ class PNP_ADMM(nn.Module):
             return best_result / 255.
         return u1 / 255.
 
-    def get_intermediate_results(self, u1, img_H): # only test
+    def get_intermediate_results(self, u1, img_H):
         pre_i = torch.clamp(u1 / 255., 0., 1.)
         img_E = util.tensor2uint(pre_i)
         # img_H = util.tensor2uint(origin_img)

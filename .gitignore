@@ -5,3 +5,4 @@ denoising/
 pnp/denoising/
 superresolution/
 results/
+pnp/eval_cpnp.py
