@@ -24,7 +24,8 @@ class DatasetRician(data.Dataset):
         self.patch_size = opt['H_size'] if opt['H_size'] else 21
         self.sigma = opt['sigma'] if opt['sigma'] else [0, 61.2]
         self.is_blind_sigma = isinstance(self.sigma, list)
-        self.sigma_min, self.sigma_max = self.sigma[0], self.sigma[1]
+        if self.is_blind_sigma:
+            self.sigma_min, self.sigma_max = self.sigma[0], self.sigma[1]
         self.sigma_test = opt['sigma_test']
         print('sigma: {}, sigma_test: {}'.format(self.sigma, self.sigma_test))
 
