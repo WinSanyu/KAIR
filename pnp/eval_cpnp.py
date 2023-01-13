@@ -9,15 +9,17 @@ sys.path.append("..")
 
 from utils import utils_image as util
 from pnp.util_pnp import get_network_eval
+from pnp.cpnp_admm import admm
 
 class PNP_ADMM(nn.Module):
-    def __init__(self, model, lamb, admm_iter_num, irl1_iter_num, mu, eps):
+    def __init__(self, model, sigma, lamb, admm_iter_num, irl1_iter_num, mu, eps):
         super(PNP_ADMM, self).__init__()
 
         self.model = model
 
+        self.sigma = sigma
+
         self.lamb = lamb
-        # self.denoisor_sigma = pnp_args['denoisor_sigma']
         self.admm_iter_num = admm_iter_num
         self.irl1_iter_num = irl1_iter_num
         self.mu = mu
@@ -28,20 +30,17 @@ class PNP_ADMM(nn.Module):
     #     predict = self.model(x)
     #     return predict
 
-    def IRL1(self, f, u, v, b):
-        for j in range(self.irl1_iter_num):
+    def IRL1(self, f, u, v, b, n):
+        for j in range(n):
             # TODO: cal v
             pass
         v = u
         return v
 
     def ADMM(self, f, u, v, b):
-        # model_input = f / 255.
-        model_input = u / 255.
-        u1 = self.model(model_input) * 255.
-        b1 = b # self.mu
-        v1 = self.IRL1(f, u1, v, b1)
-        return u1, v1, b1
+        return admm(self.model, f, u, v, b, 
+                    self.sigma, self.lamb, 
+                    self.irl1_iter_num, self.eps)
 
     def forward(self, f, GT=None):
         if GT is not None:
@@ -143,12 +142,13 @@ def unpack_opt(opt):
     network = get_network_eval(opt)
     network.to(device)
 
+    sigma = opt['pnp']['sigma']
     lamb = opt['pnp']['lamb']
     admm_iter_num = opt['pnp']['admm_iter_num']
     irl1_iter_num = opt['pnp']['irl1_iter_num']
     mu = opt['pnp']['mu']
     eps = opt['pnp']['eps']
-    pnp_admm = PNP_ADMM(network, lamb, admm_iter_num, irl1_iter_num, mu, eps)
+    pnp_admm = PNP_ADMM(network, sigma, lamb, admm_iter_num, irl1_iter_num, mu, eps)
 
     H_paths = opt['datasets']['test']['dataroot_H']
     H_paths = util.get_image_paths(H_paths)

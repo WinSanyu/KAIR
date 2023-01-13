@@ -29,8 +29,8 @@
     , "train": { }        // unused
     
     , "pnp": {
-      "lamb": [100, 1000, 100] // 690
-      // , "sigma2": 1.0
+      "sigma": 12.75      
+      , "lamb": [100, 1000, 100] // 690
       , "denoisor_sigma": {
         "5": "/mnt/d/Document/model_zoo/epoch44_noise5_PSNR38.11_SSIM0.96.pth"
         , "10": "/mnt/d/Document/model_zoo/epoch41_noise10_PSNR34.67_SSIM0.93.pth"

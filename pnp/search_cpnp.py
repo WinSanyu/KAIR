@@ -39,7 +39,7 @@ def search_args(json_path='../options/pnp/search_sndncnn.json'):
 
     logger.info('Best Average PSNR/SSIM - PSNR: {:.2f} dB; SSIM: {:.4f}'.format(max_psnr, max_ssim))
     save_opt(opt_max_psnr, 'cpnp_psnr.json')
-    save_opt(opt_max_psnr, 'cpnp_ssim.json')
+    save_opt(opt_max_ssim, 'cpnp_ssim.json')
     
 if __name__ == '__main__':
     search_args()
