@@ -30,13 +30,6 @@ class PNP_ADMM(nn.Module):
     #     predict = self.model(x)
     #     return predict
 
-    def IRL1(self, f, u, v, b, n):
-        for j in range(n):
-            # TODO: cal v
-            pass
-        v = u
-        return v
-
     def ADMM(self, f, u, v, b):
         return admm(self.model, f, u, v, b, 
                     self.sigma, self.lamb, 
