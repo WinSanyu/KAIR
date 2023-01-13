@@ -261,6 +261,15 @@ def define_G(opt):
                    nc=opt_net['nc'],
                    nb=opt_net['nb'],
                    act_mode=opt_net['act_mode'])
+
+    elif net_type == 'cpnp2':
+        from models.network_cpnp2 import CPnP2 as net
+        netG = net(sigma=opt_net['sigma'], 
+                   lamb=opt_net['lamb'], 
+                   admm_iter_num=opt_net['admm_iter_num'], 
+                   irl1_iter_num=opt_net['irl1_iter_num'], 
+                   mu=opt_net['mu'], 
+                   eps=opt_net['eps'])
                    
     # ----------------------------------------
     # others
