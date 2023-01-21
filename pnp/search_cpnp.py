@@ -12,11 +12,13 @@ def gen_opts(json_path):
     pnp_opt = all_opt['pnp']
     for lamb in range(*pnp_opt['lamb']):
         for denoisor_sigma in pnp_opt['denoisor_sigma']:
-            opt = deepcopy(all_opt)
-            opt['pnp']['lamb'] = lamb
-            opt['pnp']['denoisor_pth'] = pnp_opt['denoisor_sigma'][str(denoisor_sigma)]
-            opt['pnp']['denoisor_sigma'] = denoisor_sigma
-            opts.append(opt)
+            for irl1_iter_num in range(*pnp_opt['irl1_iter_num']):
+                opt = deepcopy(all_opt)
+                opt['pnp']['lamb'] = lamb
+                opt['pnp']['denoisor_pth'] = pnp_opt['denoisor_sigma'][str(denoisor_sigma)]
+                opt['pnp']['denoisor_sigma'] = denoisor_sigma
+                opt['pnp']['irl1_iter_num'] = irl1_iter_num
+                opts.append(opt)
     return opts
 
 def search_args(json_path='../options/pnp/search_sndncnn.json'):
@@ -27,6 +29,9 @@ def search_args(json_path='../options/pnp/search_sndncnn.json'):
     max_psnr = 0.
     max_ssim = 0.
     for opt in opts:
+        logger.info("denoisor: {}, lamb: {}, admm: {}, irl1: {}".format(
+                    opt['pnp']['denoisor_sigma'], opt['pnp']['lamb'], 
+                    opt['pnp']['admm_iter_num'], opt['pnp']['irl1_iter_num']))
         pnp_model, H_paths, L_paths, noise, n_channels, device = unpack_opt(opt)
         cur_psnr, cur_ssim = eval(pnp_model, H_paths, L_paths, 
                         noise, n_channels, device, logger)
