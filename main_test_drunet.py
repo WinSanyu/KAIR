@@ -137,8 +137,8 @@ def main():
     qmodel = qmodel.to(device)
     qmodel.eval()
     qmodel.qconfig = torch.quantization.get_default_qconfig('qnnpack')
-    qmodel_fused = torch.quantization.fuse_modules(qmodel, [['conv', 'relu']])
-    qmodel_prepared = torch.quantization.prepare(qmodel_fused)
+    # qmodel_fused = torch.quantization.fuse_modules(qmodel.model, [['conv', 'relu']])
+    qmodel_prepared = torch.quantization.prepare(qmodel)
         
     logger.info('Model path: {:s}'.format(model_path))
     number_parameters = sum(map(lambda x: x.numel(), model.parameters()))
