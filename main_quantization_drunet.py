@@ -27,6 +27,18 @@ from models.select_model import define_Model
 # github: https://github.com/cszn/KAIR
 '''
 
+class QModel(torch.nn.Module):
+    def __init__(self, model):
+        super(QModel, self).__init__()
+        self.quant = torch.quantization.QuantStub()
+        self.model = model
+        self.dequant = torch.quantization.DeQuantStub()
+    
+    def forward(self, x):
+        x = self.quant(x)
+        x = self.model(x)
+        x = self.dequant(x)
+        return x
 
 def main(json_path='options/train_drunet.json'):
 
@@ -153,8 +165,13 @@ def main(json_path='options/train_drunet.json'):
         logger.info(model.info_network())
         logger.info(model.info_params())
 
-    model_f32 = model.netG
-
+    device = 'cpu'
+    model_f32 = model.netG.module.to(device)
+    model_int8_prepared = QModel(model_f32)
+    model_int8_prepared = model_int8_prepared.to(device)
+    model_int8_prepared.eval()
+    model_int8_prepared.qconfig = torch.quantization.get_default_qconfig('qnnpack')
+    model_int8_prepared = torch.quantization.prepare(model_int8_prepared)
 
     '''
     # ----------------------------------------
@@ -162,7 +179,7 @@ def main(json_path='options/train_drunet.json'):
     # ----------------------------------------
     '''
 
-    for epoch in range(32):  # keep running
+    for epoch in range(1):  # keep running
         if opt['dist']:
             train_sampler.set_epoch(epoch)
 
@@ -170,8 +187,12 @@ def main(json_path='options/train_drunet.json'):
 
             current_step += 1
 
-            model.feed_data(train_data)
+            # model.feed_data(train_data)
+            input = train_data['L'].to(device)
+            model_int8_prepared(input)
 
+            if (i > 32): 
+                break
 
             # -------------------------------
             # 6) testing
@@ -215,6 +236,7 @@ def main(json_path='options/train_drunet.json'):
 
             #     # testing log
             #     logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB\n'.format(epoch, current_step, avg_psnr))
-
+    model_int8 = torch.quantization.convert(model_int8_prepared)
+    print(model_int8)
 if __name__ == '__main__':
     main()
