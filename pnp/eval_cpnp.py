@@ -148,7 +148,13 @@ def unpack_opt(opt):
     return pnp_admm, H_paths, L_paths, noise_level, n_channels, device
 
 if __name__ == "__main__":
+    import argparse
     from pnp.util_pnp import get_opt, gen_logger
-    opt = get_opt('../options/pnp/pnp_sndncnn.json')
+    json_path = '../options/pnp/pnp_sndncnn.json'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-opt', type=str, default=json_path, help='Path to option JSON file.')
+    json_path = parser.parse_args().opt
+
+    opt = get_opt(json_path)
     logger = gen_logger(opt)
     eval(*unpack_opt(opt), logger)
