@@ -15,7 +15,7 @@
       "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "rician"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "/mnt/d/Document/t1/"  // path of H testing dataset
+        , "dataroot_H": "../testsets/t1/"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
     }
@@ -32,11 +32,11 @@
       "sigma": 12.75      
       , "lamb": [100, 1000, 100] // [start, end, stride]
       , "denoisor_sigma": {
-        "5": "/mnt/d/Document/model_zoo/epoch44_noise5_PSNR38.11_SSIM0.96.pth"
-        , "10": "/mnt/d/Document/model_zoo/epoch41_noise10_PSNR34.67_SSIM0.93.pth"
-        , "15": "/mnt/d/Document/model_zoo/epoch44_noise15_PSNR32.85_SSIM0.90.pth"
-        , "20": "/mnt/d/Document/model_zoo/epoch37_noise20_PSNR31.61_SSIM0.88.pth"
-        , "25": "/mnt/d/Document/model_zoo/epoch44_noise25_PSNR30.63_SSIM0.86.pth"
+        "5": "../model_zoo/sndncnn5.pth"
+        , "10": "../model_zoo/sndncnn10.pth"
+        , "15": "../model_zoo/sndncnn15.pth"
+        , "20": "../model_zoo/sndncnn20.pth"
+        , "25": "../model_zoo/sndncnn25.pth"
       }
       , "admm_iter_num": 10
       , "irl1_iter_num": [3, 4, 1] // [start, end, stride]

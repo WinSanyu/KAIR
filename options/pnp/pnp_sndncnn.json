@@ -15,7 +15,7 @@
       "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "fdncnn"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "/mnt/d/Document/brain4/"  // path of H testing dataset
+        , "dataroot_H": "../testsets/t1/"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
     }
@@ -31,7 +31,7 @@
     , "pnp": {
       "sigma": 12.75
       , "lamb": 100 // 690
-      , "denoisor_pth": "/mnt/d/Document/model_zoo/epoch37_noise20_PSNR31.61_SSIM0.88.pth"
+      , "denoisor_pth": "../model_zoo/sndncnn20.pth"
       , "admm_iter_num": 3
       , "irl1_iter_num": 20
       , "mu": 0.5

@@ -29,7 +29,7 @@
       , "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "rician"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "testsets/set5" // path of H testing dataset
+        , "dataroot_H": "testsets/t1"     // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
   
         , "sigma": 38.25                  // 15, 25, 50 for DnCNN | [0, 75] for FFDNet and FDnCNN
@@ -78,7 +78,7 @@
       , "G_regularizer_orthstep": null    // unused
       , "G_regularizer_clipstep": null    // unused
   
-      , "checkpoint_test": 1           // for testing
+      , "checkpoint_test": 100           // for testing
       , "checkpoint_save": 5000           // for saving model
       , "checkpoint_print": 200           // for print
     }
