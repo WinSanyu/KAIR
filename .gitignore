@@ -1,8 +1,12 @@
 *.png
 *__pycache__*
+testsets/
+trainsets/
 model_zoo/
 denoising/
 pnp/denoising/
 superresolution/
 results/
 pnp/eval_cpnp.py
+*.patch
+*.pth

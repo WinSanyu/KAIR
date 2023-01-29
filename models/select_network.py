@@ -269,7 +269,8 @@ def define_G(opt):
                    admm_iter_num=opt_net['admm_iter_num'], 
                    irl1_iter_num=opt_net['irl1_iter_num'], 
                    mu=opt_net['mu'], 
-                   eps=opt_net['eps'])
+                   eps=opt_net['eps'],
+                   denoisor=opt_net['denoisor'])
                    
     # ----------------------------------------
     # others

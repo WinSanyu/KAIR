@@ -2,7 +2,7 @@
     "task": "sndncnn"  //  root/task/images-models-options
     , "model": "plain" // "plain"
     , "gpu_ids": [0]
-    , "sigma": 38.25
+    , "sigma": 25.5    // 12.75, 25.5, 38.25, 51
   
     , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
   
@@ -13,7 +13,7 @@
     , "datasets": {
       "test": {
         "name": "test_dataset"            // just name
-        , "dataset_type": "rician"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+        , "dataset_type": "fdncnn"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
         , "dataroot_H": "../testsets/t1/"  // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
@@ -21,24 +21,17 @@
   
     , "netG": {
       "net_type": "sndncnn" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
-      , "in_nc": 1        // input channel number
-      , "nb": 17          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
+      , "in_nc": 1          // input channel number
+      , "nb": 17            // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
     }
   
-    , "train": { }        // unused
+    , "train": { }          // unused
     
-    , "pnp": {
-      "lamb": [1100, 1400, 20] // [start, end, stride]
-      , "denoisor_sigma": {
-        "5": "../model_zoo/sndncnn5.pth"
-        , "10": "../model_zoo/sndncnn10.pth"
-        , "15": "../model_zoo/sndncnn15.pth"
-        , "20": "../model_zoo/sndncnn20.pth"
-        , "25": "../model_zoo/sndncnn25.pth"
-        , "30": "../model_zoo/sndncnn30.pth"
-      }
+    , "pnp": {      
+      "lamb": 350
+      , "denoisor_pth": "../model_zoo/sndncnn15.pth"
       , "admm_iter_num": 30
-      , "irl1_iter_num": [10, 11, 1] // [start, end, stride]
+      , "irl1_iter_num": 10
       , "mu": 0.5
       , "rho": 0.99
       , "eps": 1e-5

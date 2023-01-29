@@ -5,6 +5,7 @@
   
     , "scale": 1       // broadcast to "netG" if SISR
     , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
+    , "sigma": 12.75
   
     , "path": {
       "root": "denoising"            // "denoising" | "superresolution"
@@ -19,48 +20,32 @@
         , "dataroot_L": null              // path of L training dataset
         , "H_size": 40                    // patch size 40 | 64 | 96 | 128 | 192
   
-        , "sigma": 38.25                  // 15, 25, 50 for DnCNN | [0, 75] for FFDNet and FDnCNN
-        , "sigma_test": 38.25             // 15, 25, 50 for DnCNN and ffdnet
-  
         , "dataloader_shuffle": true
         , "dataloader_num_workers": 8
-        , "dataloader_batch_size": 64     // batch size 1 | 16 | 32 | 48 | 64 | 128
+        , "dataloader_batch_size": 32     // batch size 1 | 16 | 32 | 48 | 64 | 128
       }
       , "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "rician"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "testsets/t1"     // path of H testing dataset
+        , "dataroot_H": "testsets/pd"     // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
-  
-        , "sigma": 38.25                  // 15, 25, 50 for DnCNN | [0, 75] for FFDNet and FDnCNN
-        , "sigma_test": 38.25             // 15, 25, 50 for DnCNN and ffdnet
-  
       }
     }
   
     , "netG": {
-      "net_type": "cpnp2" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "msrresnet0" |  "msrresnet1" | "rrdb" 
-      // , "in_nc": 1        // input channel number
-      // , "out_nc": 1       // ouput channel number
-      // , "nc": 64          // 64 for "dncnn"
-      // , "nb": 17          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
-      // , "gc": 32          // unused
-      // , "ng": 2           // unused
-      // , "reduction" : 16  // unused
-      // , "act_mode": "BR"  // "BR" for BN+ReLU | "R" for ReLU
-      // , "upsample_mode": "convtranspose"  // "pixelshuffle" | "convtranspose" | "upconv"
-      // , "downsample_mode": "strideconv"   // "strideconv" | "avgpool" | "maxpool"
+      "net_type": "cpnp2"
   
       , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
       , "init_bn_type": "uniform"         // "uniform" | "constant"
       , "init_gain": 0.2
-      
-      , "sigma": 38.25
-      , "lamb": 800
-      , "admm_iter_num": 3
+
+      , "lamb": 200
+      , "admm_iter_num": 6
       , "irl1_iter_num": 1
       , "mu": 0.5
       , "eps": 1e-5
+      , "denoisor": "sndncnn"
+      , "denoisor_pth": "model_zoo/sndncnn15.pth"
     }
   
     , "train": {
@@ -78,9 +63,9 @@
       , "G_regularizer_orthstep": null    // unused
       , "G_regularizer_clipstep": null    // unused
   
-      , "checkpoint_test": 100           // for testing
+      , "checkpoint_test": 200            // for testing
       , "checkpoint_save": 5000           // for saving model
-      , "checkpoint_print": 200           // for print
+      , "checkpoint_print": 2000          // for print
     }
   }
   
