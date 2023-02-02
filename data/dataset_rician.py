@@ -20,9 +20,9 @@ class DatasetRician(data.Dataset):
         super(DatasetRician, self).__init__()
         print('Dataset: Denosing on Rician noise. Only dataroot_H is needed.')
         self.opt = opt
-        self.n_channels = opt['n_channels'] if opt['n_channels'] else 1
-        self.patch_size = opt['H_size'] if opt['H_size'] else 21
-        self.sigma = opt['sigma'] if opt['sigma'] else [0, 61.2]
+        self.n_channels = opt['n_channels']
+        self.patch_size = opt['H_size']
+        self.sigma = opt['sigma']
         self.is_blind_sigma = isinstance(self.sigma, list)
         if self.is_blind_sigma:
             self.sigma_min, self.sigma_max = self.sigma[0], self.sigma[1]
