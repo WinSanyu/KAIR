@@ -40,12 +40,13 @@
       , "init_gain": 0.2
 
       , "lamb": 200
-      , "admm_iter_num": 6
+      , "admm_iter_num": 7
       , "irl1_iter_num": 1
       , "mu": 0.5
       , "eps": 1e-5
       , "denoisor": "sndncnn"
       , "denoisor_pth": "model_zoo/sndncnn15.pth"
+      , "denoisor_load_pretrain": 6
     }
   
     , "train": {
