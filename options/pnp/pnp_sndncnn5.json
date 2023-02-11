@@ -12,10 +12,10 @@
   
     , "datasets": {
       "test": {
-        "name": "test_dataset"            // just name
-        , "dataset_type": "fdncnn"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "../testsets/t1/"  // path of H testing dataset
-        , "dataroot_L": null              // path of L testing dataset
+        "name": "test_dataset"                 // just name
+        , "dataset_type": "rician"             // unused
+        , "dataroot_H": "../testsets/brain4/"  // path of H testing dataset
+        , "dataroot_L": null                   // path of L testing dataset
       }
     }
   
@@ -30,7 +30,7 @@
     , "pnp": {      
       "lamb": 200
       , "denoisor_pth": "../model_zoo/sndncnn15.pth"
-      , "admm_iter_num": 30
+      , "admm_iter_num": 50
       , "irl1_iter_num": 10
       , "mu": 0.5
       , "rho": 0.99
