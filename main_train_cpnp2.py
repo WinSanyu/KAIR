@@ -4,7 +4,6 @@ import argparse
 import time
 import random
 import numpy as np
-from collections import OrderedDict
 import logging
 import torch
 from torch.utils.data import DataLoader
@@ -41,14 +40,6 @@ from models.select_model import define_Model
 # https://github.com/xinntao/BasicSR
 # --------------------------------------------
 '''
-
-def load_denoisor(model, pth, denoisor_load_pretrain):
-    model = model.netG.module
-    len_denoisor = model.admm_iter_num
-    denoisor_type = model.denoisor
-    for i in range(min(len_denoisor, denoisor_load_pretrain)):
-        denoisor_i = getattr(model, denoisor_type + str(i))
-        denoisor_i.load_state_dict(torch.load(pth))
 
 def main(json_path='options/train_cpnp2.json'):
 
@@ -148,9 +139,6 @@ def main(json_path='options/train_cpnp2.json'):
 
     model = define_Model(opt)
 
-    # load pretrained denoisor
-    load_denoisor(model, opt['netG']['denoisor_pth'], opt['netG']['denoisor_load_pretrain'])
-
     logger.info(model.info_network())
     model.init_train()
     logger.info(model.info_params())
@@ -244,6 +232,7 @@ def main(json_path='options/train_cpnp2.json'):
 
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB; SSIM: {:.4f}\n'.format(epoch, current_step, avg_psnr, avg_ssim))
+                print(model.get_bare_model(model.netG).lamb)
 
     logger.info('Saving the final model.')
     model.save('latest')

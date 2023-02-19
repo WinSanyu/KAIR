@@ -46,7 +46,7 @@ def define_G(opt):
 
     elif net_type == 'sndncnn':
         from models.network_sndncnn import SNDnCNN as net
-        netG = net(opt_net['in_nc'], opt_net['nb'])
+        netG = net(opt_net['in_nc'], opt_net['nb'], lip=-1)
 
     # ----------------------------------------
     # FFDNet
@@ -263,14 +263,17 @@ def define_G(opt):
                    act_mode=opt_net['act_mode'])
 
     elif net_type == 'cpnp2':
+        from models.denoisor import select_denoisor
+        denoisor = select_denoisor(opt)
         from models.network_cpnp2 import CPnP2 as net
         netG = net(sigma=opt_net['sigma'], 
                    lamb=opt_net['lamb'], 
                    admm_iter_num=opt_net['admm_iter_num'], 
                    irl1_iter_num=opt_net['irl1_iter_num'], 
                    mu=opt_net['mu'], 
+                   rho=opt_net['rho'],
                    eps=opt_net['eps'],
-                   denoisor=opt_net['denoisor'])
+                   denoisor=denoisor)
                    
     # ----------------------------------------
     # others
@@ -288,6 +291,10 @@ def define_G(opt):
                      init_type=opt_net['init_type'],
                      init_bn_type=opt_net['init_bn_type'],
                      gain=opt_net['init_gain'])
+
+    if net_type == 'cpnp2':
+        netG.denoisor.load(opt_net['denoisor_pth'], 
+                           opt_net['max_denoisor_load_len'])
 
     return netG
 
