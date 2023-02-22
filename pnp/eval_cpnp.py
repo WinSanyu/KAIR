@@ -92,12 +92,12 @@ class PNP_ADMM(nn.Module):
         self.rho = rho
         self.eps = eps
 
-    def ADMM(self, f, u1, v1, b1, u0, v0, b0, mu):
+    def ADMM(self, f, u1, v1, b1, u0, v0, b0, lamb, mu):
         return admm(self.model, 
                     f, u1, v1, b1, 
                     u0, v0, b0,
                     self.sigma, 
-                    self.lamb, 
+                    lamb, 
                     self.irl1_iter_num, 
                     mu,
                     self.eps)
@@ -119,7 +119,8 @@ class PNP_ADMM(nn.Module):
             else:
                 mu.enable()
             
-            u2, v2, b2 = self.ADMM(f, u1, v1, b1, u0, v0, b0, mu)
+            lamb = self.lamb
+            u2, v2, b2 = self.ADMM(f, u1, v1, b1, u0, v0, b0, lamb, mu)
 
             # check intermediate results
             if checkpoint.is_available():

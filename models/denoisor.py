@@ -32,12 +32,15 @@ class Denoisor_SNDnCNN_Single(Denoisor):
     def __init__(self, len_denoisor=-1):
         super(Denoisor_SNDnCNN_Single, self).__init__()
         from models.network_sndncnn import SNDnCNN as Net
-        self.denoisor = Net(channels=1)
+        self.denoisor = Net(channels=1, lip=-1)
         print("init Denoisor_SNDnCNN_Single")
 
     def load(self, pth, max_load_len=-1):
+        from pnp.util_pnp import sndncnn_to_dncnn
         denoisor = self.get_denoisor()
-        denoisor.load_state_dict(torch.load(pth))
+        d = torch.load(pth)
+        d = sndncnn_to_dncnn(d)
+        denoisor.load_state_dict(d)
 
     def get_denoisor(self, i=-1):
         return self.denoisor
@@ -49,7 +52,7 @@ class Denoisor_SNDnCNN(Denoisor):
         from models.network_sndncnn import SNDnCNN as Net
         for i in range(len_denoisor):
             setattr(self, 'denoisor' + str(i), 
-                Net(channels=1)
+                Net(channels=1, lip=-1)
             )
 
     def load(self, pth, max_load_len):
