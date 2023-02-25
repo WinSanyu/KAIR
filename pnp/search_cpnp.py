@@ -14,10 +14,14 @@ def gen_opts(json_path):
         for lamb in range(*pnp_opt['lamb']):
             for irl1_iter_num in range(*pnp_opt['irl1_iter_num']):
                 opt = deepcopy(all_opt)
-                opt['pnp']['lamb'] = lamb
-                opt['pnp']['denoisor_pth'] = pnp_opt['denoisor_sigma'][str(denoisor_sigma)]
-                opt['pnp']['denoisor_sigma'] = denoisor_sigma
-                opt['pnp']['irl1_iter_num'] = irl1_iter_num
+                opt['netG']['lamb'] = lamb
+                opt['netG']['admm_iter_num'] = opt['pnp']['admm_iter_num']
+                opt['netG']['denoisor_pth'] = pnp_opt['denoisor_sigma'][str(denoisor_sigma)]
+                opt['netG']['denoisor_sigma'] = denoisor_sigma
+                opt['netG']['irl1_iter_num'] = irl1_iter_num
+                opt['netG']['mu'] = opt['pnp']['mu']
+                opt['netG']['rho'] = opt['pnp']['rho']
+                opt['netG']['eps'] = opt['pnp']['eps']
                 opts.append(opt)
     return opts
 

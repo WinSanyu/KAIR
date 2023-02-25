@@ -36,14 +36,27 @@ class Denoisor_SNDnCNN_Single(Denoisor):
         print("init Denoisor_SNDnCNN_Single")
 
     def load(self, pth, max_load_len=-1):
-        from pnp.util_pnp import sndncnn_to_dncnn
         denoisor = self.get_denoisor()
         d = torch.load(pth)
-        d = sndncnn_to_dncnn(d)
+        d = self._sndncnn_to_dncnn(d)
         denoisor.load_state_dict(d)
 
     def get_denoisor(self, i=-1):
         return self.denoisor
+
+    def _sndncnn_to_dncnn(self, d):
+        from collections import OrderedDict
+        res = OrderedDict()
+        for key in d:
+            if "_u" in key:
+                continue
+            if "_orig" in key:
+                continue
+
+            val = d[key]
+            dncnn_key = key
+            res[dncnn_key] = val
+        return res
 
 class Denoisor_SNDnCNN(Denoisor):
     def __init__(self, len_denoisor):
