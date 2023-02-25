@@ -3,13 +3,14 @@ import logging
 import os.path
 import sys
 from collections import OrderedDict
+from torch.utils.data import DataLoader
 sys.path.append("..") 
 
 from utils import utils_option as option
 from utils import utils_image as util
 from utils import utils_logger
 
-# from data.select_dataset import define_Dataset
+from data.select_dataset import define_Dataset
 from models.select_network import define_G
 
 def gen_logger(opt):
@@ -69,11 +70,11 @@ def save_opt(opt, pth='sndncnn.json'):
         json.dump(opt, f)
 
 
-# def get_test_loader(opt):
-#     dataset_opt = opt['datasets']['test']
-#     dataset_opt['sigma_test'] = opt['sigma_test']
-#     test_set = define_Dataset(dataset_opt)
-#     test_loader = DataLoader(test_set, batch_size=1,
-#                              shuffle=False, num_workers=1,
-#                              drop_last=False, pin_memory=True)
-#     return test_loader
+def get_test_loader(opt):
+    dataset_opt = opt['datasets']['test']
+    dataset_opt['sigma_test'] = opt['sigma']
+    test_set = define_Dataset(dataset_opt)
+    test_loader = DataLoader(test_set, batch_size=1,
+                             shuffle=False, num_workers=1,
+                             drop_last=False, pin_memory=True)
+    return test_loader

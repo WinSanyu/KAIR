@@ -21,7 +21,7 @@ def gen_opts(json_path):
                 opts.append(opt)
     return opts
 
-def search_args(json_path='../options/pnp/search_sndncnn.json'):
+def search_args(json_path):
     opts = gen_opts(json_path)
     logger = gen_logger(opts[0])
     opt_max_psnr = None
@@ -32,9 +32,8 @@ def search_args(json_path='../options/pnp/search_sndncnn.json'):
         logger.info("denoisor: {}, lamb: {}, admm: {}, irl1: {}".format(
                     opt['pnp']['denoisor_sigma'], opt['pnp']['lamb'], 
                     opt['pnp']['admm_iter_num'], opt['pnp']['irl1_iter_num']))
-        pnp_model, H_paths, L_paths, noise, n_channels, device = unpack_opt(opt)
-        cur_psnr, cur_ssim = eval(pnp_model, H_paths, L_paths, 
-                        noise, n_channels, device, logger)
+        
+        cur_psnr, cur_ssim = eval(*unpack_opt(opt), logger)
         if cur_psnr > max_psnr:
             max_psnr = cur_psnr
             opt_max_psnr = deepcopy(opt)
@@ -47,4 +46,9 @@ def search_args(json_path='../options/pnp/search_sndncnn.json'):
     save_opt(opt_max_ssim, 'cpnp_ssim.json')
     
 if __name__ == '__main__':
-    search_args()
+    import argparse
+    json_path = '../options/pnp/search_sndncnn.json'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-opt', type=str, default=json_path, help='Path to option JSON file.')
+    json_path = parser.parse_args().opt
+    search_args(json_path)

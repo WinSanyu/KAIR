@@ -4,11 +4,10 @@ import numpy as np
 import sys
 import os.path
 from collections import OrderedDict
-from torch.utils.data import DataLoader
 sys.path.append("..") 
 
 from utils import utils_image as util
-from pnp.util_pnp import get_network_eval
+from pnp.util_pnp import get_network_eval, get_test_loader
 from pnp.cpnp_admm import admm, Subproblem_mu
 
 class Intermediate:
@@ -61,7 +60,7 @@ class Intermediate:
     def _get_intermediate_results(self, u1, img_H):
         pre_i = torch.clamp(u1 / 255., 0., 1.)
         img_E = util.tensor2uint(pre_i)
-        # img_H = util.tensor2uint(origin_img)
+        img_H = util.tensor2uint(img_H)
         psnr = util.calculate_psnr(img_E, img_H, border=0)
         ssim = util.calculate_ssim(img_E, img_H, border=0)
         return psnr, ssim
@@ -139,51 +138,25 @@ class PNP_ADMM(nn.Module):
 
         return u2 / 255.
 
-def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
+def eval(pnp_admm, test_loader, device, logger):
+    idx = 0
     test_results = OrderedDict()
     test_results['psnr'] = []
     test_results['ssim'] = []
 
-    for idx, img in enumerate(L_paths):
+    for test_data in test_loader:
+        idx += 1
 
-        # ------------------------------------
-        # (1) img_L
-        # ------------------------------------
-        image_name_ext = os.path.basename(img)
-        # logger.info('{:->4d}--> {:>10s}'.format(idx+1, img_name+ext))
-        img_L = util.imread_uint(img, n_channels=1)
-        img_L = util.uint2single(img_L)
+        image_name_ext = os.path.basename(test_data['L_path'][0])
+        
+        img_L = test_data['L']
+        img_H = test_data['H']
 
-        np.random.seed(seed=0)  # for reproducibility
-        noise1 = np.random.normal(0, noise_level/255., img_L.shape)
-        noise2 = np.random.normal(0, noise_level/255., img_L.shape)
-        img_L = np.sqrt( (img_L + noise1)**2 + noise2**2 )
-
-        # util.imshow(util.single2uint(img_L), title='Noisy image with noise level {}'.format(noise_level_img)) if show_img else None
-
-        img_L = util.single2tensor4(img_L)
         img_L = img_L.to(device)
-
-        # --------------------------------
-        # (2) img_H
-        # --------------------------------
-
-        img_H = util.imread_uint(H_paths[idx], n_channels=n_channels)
-        img_H = img_H.squeeze()
-
-        # ------------------------------------
-        # (3) img_E
-        # ------------------------------------
-
-
         img_E = pnp_admm(img_L, img_H)
-        # img_E = pnp_admm(img_L, None)
 
         img_E = util.tensor2uint(img_E)
-
-        # --------------------------------
-        # PSNR and SSIM
-        # --------------------------------
+        img_H = util.tensor2uint(img_H)
 
         psnr = util.calculate_psnr(img_E, img_H, border=0)
         ssim = util.calculate_ssim(img_E, img_H, border=0)
@@ -199,9 +172,10 @@ def eval(pnp_admm, H_paths, L_paths, noise_level, n_channels, device, logger):
     
     return ave_psnr, ave_ssim
 
+
 def unpack_opt(opt):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    # test_loader = get_test_loader(opt)
+    test_loader = get_test_loader(opt)
     network = get_network_eval(opt)
     network.to(device)
 
@@ -214,12 +188,7 @@ def unpack_opt(opt):
     eps = opt['pnp']['eps']
     pnp_admm = PNP_ADMM(network, sigma, lamb, admm_iter_num, irl1_iter_num, mu, rho, eps)
 
-    H_paths = opt['datasets']['test']['dataroot_H']
-    H_paths = util.get_image_paths(H_paths)
-    L_paths = H_paths
-    noise_level = sigma
-    n_channels = opt['n_channels']
-    return pnp_admm, H_paths, L_paths, noise_level, n_channels, device
+    return pnp_admm, test_loader, device
 
 if __name__ == "__main__":
     import argparse
