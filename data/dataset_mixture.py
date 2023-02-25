@@ -41,6 +41,7 @@ class DatasetMixture(data.Dataset):
         img_H = util.imread_uint(H_path, self.n_channels)
 
         L_path = H_path
+        sp = self.sp / 100 / 2
 
         if self.opt['phase'] == 'train':
             """
@@ -76,8 +77,8 @@ class DatasetMixture(data.Dataset):
             img_L.add_(noise)
 
             mask = torch.rand(img_L.shape)
-            mask1 = mask <= self.sp/2
-            mask2 = mask >= 1- self.sp/2
+            mask1 = mask <= sp
+            mask2 = mask >= 1 - sp
             img_L[mask1] = 0.
             img_L[mask2] = 1.
 
@@ -96,8 +97,8 @@ class DatasetMixture(data.Dataset):
             np.random.seed(seed=0)
             img_L += np.random.normal(0, self.sigma_test/255.0, img_L.shape)
             mask = np.random.rand(*img_L.shape)
-            mask1 = mask <= self.sp/2
-            mask2 = mask >= 1- self.sp/2
+            mask1 = mask <= sp
+            mask2 = mask >= 1 - sp
             img_L[mask1] = 0.
             img_L[mask2] = 1.
 
