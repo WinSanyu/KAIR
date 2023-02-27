@@ -232,7 +232,10 @@ def main(json_path='options/train_cpnp2.json'):
 
                 # testing log
                 logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB; SSIM: {:.4f}\n'.format(epoch, current_step, avg_psnr, avg_ssim))
-                print(model.get_bare_model(model.netG).lamb)
+                logger.info('lamb: {}'.format(
+                        model.get_bare_model(model.netG).lamb.cpu().detach().numpy()[:-1]
+                    )
+                )
 
     logger.info('Saving the final model.')
     model.save('latest')
