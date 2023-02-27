@@ -91,7 +91,10 @@ class CPnP2(nn.Module):
                     mu, 
                     self.eps)
 
-    def forward(self, f):
+    def forward(self, f, H=None):
+        
+        checkpoint = Intermediate(H)
+
         f, u1, v1, b1, u0, v0, b0 = self.init_fuvb(f)
         start_mu = 3
         mu = Subproblem_mu(self.mu0, self.rho, self.eps)
@@ -108,7 +111,13 @@ class CPnP2(nn.Module):
             
             u2, v2, b2 = self.ADMM(model, f, u1, v1, b1, u0, v0, b0, lamb, mu)
 
+            if checkpoint.is_available():
+                checkpoint.update(u2)
+
             u0, v0, b0 = u1, v1, b1
             u1, v1, b1 = u2, v2, b2
+
+        if checkpoint.is_available():
+            u2 = checkpoint.get_best_measure_result()
 
         return u2 / 255.

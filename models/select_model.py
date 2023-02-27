@@ -23,6 +23,9 @@ def define_Model(opt):
 
     elif model == 'vrt':     # one video input L, for VRT
         from models.model_vrt import ModelVRT as M
+    
+    elif model == 'pnp_checkpoint':
+        from models.model_checkpoint import ModelCheckpoint as M
 
     else:
         raise NotImplementedError('Model [{:s}] is not defined.'.format(model))
