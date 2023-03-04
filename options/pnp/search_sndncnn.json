@@ -2,7 +2,7 @@
     "task": "sndncnn"  //  root/task/images-models-options
     , "model": "plain" // "plain"
     , "gpu_ids": [0]
-    , "sigma": 38.25
+    , "sigma": 12.75
   
     , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
   
@@ -20,15 +20,17 @@
     }
   
     , "netG": {
-      "net_type": "sndncnn" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
-      , "in_nc": 1        // input channel number
-      , "nb": 17          // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
+      "net_type": "cpnp2" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
+      , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+      , "init_bn_type": "uniform"         // "uniform" | "constant"
+      , "init_gain": 0.2
+      , "denoisor": "sndncnn_single"
     }
   
     , "train": { }        // unused
     
     , "pnp": {
-      "lamb": [1100, 1400, 20] // [start, end, stride]
+      "lamb": [100, 500, 100] // [start, end, stride]
       , "denoisor_sigma": {
         "5": "../model_zoo/sndncnn5.pth"
         , "10": "../model_zoo/sndncnn10.pth"

@@ -1,6 +1,6 @@
 {
     "task": "sndncnn"  //  root/task/images-models-options
-    , "model": "plain" // "plain"
+    , "model": "pnp_checkpoint" // "plain"
     , "gpu_ids": [0]
     , "sigma": 12.75   // 12.75, 25, 38.25, 51
   
@@ -14,27 +14,29 @@
       "test": {
         "name": "test_dataset"                 // just name
         , "dataset_type": "rician"             // unused
-        , "dataroot_H": "../testsets/brain4/"  // path of H testing dataset
+        , "dataroot_H": "../testsets/t1/"      // path of H testing dataset
         , "dataroot_L": null                   // path of L testing dataset
       }
     }
   
     , "netG": {
-      "net_type": "sndncnn" // "dncnn" | "fdncnn" | "ffdnet" | "srmd" | "dpsr" | "srresnet0" |  "srresnet1" | "rrdbnet" 
-      , "in_nc": 1          // input channel number
-      , "nb": 17            // 17 for "dncnn", 20 for dncnn3, 16 for "srresnet"
-    }
+      "net_type": "cpnp2"
   
-    , "train": { }          // unused
-    
-    , "pnp": {      
-      "lamb": 200
-      , "denoisor_pth": "../model_zoo/sndncnn15.pth"
+      , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+      , "init_bn_type": "uniform"         // "uniform" | "constant"
+      , "init_gain": 0.2
+
+      , "lamb": 200
       , "admm_iter_num": 50
       , "irl1_iter_num": 10
       , "mu": 0.5
       , "rho": 0.99
-      , "eps": 1e-5
+      , "eps": 1e-8
+      , "denoisor": "sndncnn_single"
+      , "denoisor_pth": "../model_zoo/sndncnn15.pth"
+      , "max_denoisor_load_len": -1
     }
+  
+    , "train": { }          // unused
   }
   
