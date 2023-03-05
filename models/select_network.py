@@ -274,6 +274,16 @@ def define_G(opt):
                    rho=opt_net['rho'],
                    eps=opt_net['eps'],
                    denoisor=denoisor)
+
+    elif net_type == 'mixture_pnp':
+        from models.denoisor import select_denoisor
+        denoisor = select_denoisor(opt)
+        from models.network_mixture_pnp import MixturePnP as net
+        netG = net(beta=opt_net['beta'],
+                   eta=opt_net['eta'],
+                   admm_iter_num=opt_net['admm_iter_num'],
+                   eps=opt_net['eps'],
+                   denoisor=denoisor)
                    
     # ----------------------------------------
     # others
@@ -292,7 +302,7 @@ def define_G(opt):
                      init_bn_type=opt_net['init_bn_type'],
                      gain=opt_net['init_gain'])
 
-    if net_type == 'cpnp2':
+    if net_type == 'cpnp2' or net_type == 'mixture_pnp':
         netG.denoisor.load(opt_net['denoisor_pth'], 
                            opt_net['max_denoisor_load_len'])
 

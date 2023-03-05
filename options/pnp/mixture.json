@@ -1,0 +1,42 @@
+{
+    "task": "mixture_pnp"  //  root/task/images-models-options
+    , "model": "pnp_checkpoint" // "plain"
+    , "gpu_ids": [0]
+    , "sigma": 10      // 12.75, 25, 38.25, 51
+    , "sp": 10
+  
+    , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
+  
+    , "path": {
+      "root": "denoising"            // "denoising" | "superresolution"
+    }
+  
+    , "datasets": {
+      "test": {
+        "name": "test_dataset"                 // just name
+        , "dataset_type": "mixture"
+        , "dataroot_H": "../testsets/set12/"   // path of H testing dataset
+        , "dataroot_L": null                   // path of L testing dataset
+      }
+    }
+  
+    , "netG": {
+      "net_type": "mixture_pnp"
+  
+      , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+      , "init_bn_type": "uniform"         // "uniform" | "constant"
+      , "init_gain": 0.2
+
+      , "lamb": 200
+      , "beta": 1.1
+      , "eta": 26.5
+      , "admm_iter_num": 5
+      , "eps": 1e-8
+      , "denoisor": "sndncnn_single"
+      , "denoisor_pth": "../model_zoo/sndncnn15.pth"
+      , "max_denoisor_load_len": -1
+    }
+  
+    , "train": { }          // unused
+  }
+  
