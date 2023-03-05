@@ -6,6 +6,8 @@ from models.select_model import define_Model
 from pnp.util_pnp import get_test_loader, eval, get_opt, gen_logger
 
 def unpack_opt(opt):
+    opt['datasets']['test']['sigma'] = opt['sigma']
+    opt['datasets']['test']['sigma_test'] = opt['sigma']
     test_loader = get_test_loader(opt)
     opt['netG']['sigma'] = opt['sigma']
     model = define_Model(opt)

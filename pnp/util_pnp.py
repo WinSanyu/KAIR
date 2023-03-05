@@ -30,7 +30,6 @@ def save_opt(opt, pth='sndncnn.json'):
 
 def get_test_loader(opt):
     dataset_opt = opt['datasets']['test']
-    dataset_opt['sigma_test'] = opt['sigma']
     test_set = define_Dataset(dataset_opt)
     test_loader = DataLoader(test_set, batch_size=1,
                              shuffle=False, num_workers=1,
