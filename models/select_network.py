@@ -279,10 +279,10 @@ def define_G(opt):
         from models.denoisor import select_denoisor
         denoisor = select_denoisor(opt)
         from models.network_mixture_pnp import MixturePnP as net
-        netG = net(beta=opt_net['beta'],
+        netG = net(noise_level=opt_net['sigma'],
+                   beta=opt_net['beta'],
                    eta=opt_net['eta'],
                    admm_iter_num=opt_net['admm_iter_num'],
-                   eps=opt_net['eps'],
                    denoisor=denoisor)
                    
     # ----------------------------------------

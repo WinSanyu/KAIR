@@ -100,9 +100,8 @@ def subproblem_S(y, mu, eps=2.2204e-16):
     S = theta*alpha
     return S
 
-def subproblem_z(x1, gamma, beta, eta):
-    denoisor = lambda x, y: x # TODO using network
-    denoisor(x1 + gamma/beta, sqrt(eta/beta))
+def subproblem_z(denoisor, x1, gamma, beta, eta):
+    return denoisor(x1 + gamma/beta) # , sqrt(eta/beta))
 
 def subproblem_W(y, x, S):
     return 1 / (torch.abs(y - x - S) + 2.2204e-16)

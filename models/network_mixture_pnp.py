@@ -62,9 +62,9 @@ class MixturePnP(nn.Module):
 
     def init_value(self, f):
         self.ind = ((f != 0) & (f != 255)).long()
-        self.im_init = adpmedft(f) * (1 - self.ind) + f * self.ind
-        x1 = adpmedft(f)
-        x0 = adpmedft(f)
+        self.im_init = f # adpmedft(f) * (1 - self.ind) + f * self.ind
+        x1 = f # adpmedft(f)
+        x0 = f # adpmedft(f)
         y1 = f
         y0 = f
         z1 = f
@@ -73,27 +73,23 @@ class MixturePnP(nn.Module):
         gamma0 = torch.zeros_like(f)
         S1 = torch.zeros_like(f)
         S0 = torch.zeros_like(f)
-        W1 = torch.div(20, torch.abs(f - self.im_ini))
-        W0 = torch.div(20, torch.abs(f - self.im_ini))
+        W1 = torch.div(20, torch.abs(f - self.im_init))
+        W0 = torch.div(20, torch.abs(f - self.im_init))
         return y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0
 
-    def __init__(self, noise_level, beta, eta, admm_iter_num, eps, denoisor):
+    def __init__(self, noise_level, beta, eta, admm_iter_num, denoisor):
         super(MixturePnP, self).__init__()
         
         self.noise_level = noise_level
         self.beta = beta
         self.eta  = eta
         self.admm_iter_num = admm_iter_num
-        # self.eps  = eps
 
         self.denoisor = denoisor
 
-    # def ADMM(self, denoisor, y, sigma1, x1, gamma1, S1, z1):
-    #     admm = lambda denoisor,y,a,b,c,d,e: (a,b,c,d,e)
-    #     return admm(denoisor, y, sigma1, x1, gamma1, S1, z1)
     def ADMM(self, denoiser, ind, y, sigma, x, gamma, S, z, W, beta, eta):
-        S = subproblem_S(y - x, 1./ W^2)
-        z = subproblem_z(x, gamma, beta, eta)
+        S = subproblem_S(y - x, 1./ W**2)
+        z = subproblem_z(denoiser, x, gamma, beta, eta)
         x = subproblem_x(beta, sigma, z, gamma, y, S)
         W = subproblem_W(y, x, S)
         sigma = subproblem_sigma(y, x, S, ind)
@@ -101,16 +97,14 @@ class MixturePnP(nn.Module):
         beta = 1.2 * beta   # TODO finetune
         return y, sigma, x, gamma, S, z, W, beta, eta
 
-
-
     def forward(self, y, H=None):
         
         checkpoint = Intermediate(H)
 
         y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y)
-        sigma1, sigma0 = self.noise_level 
-        beta1, beta0 = self.beta
-        eta1, eta0 = self.eta
+        sigma1 = self.noise_level
+        beta1 = self.beta
+        eta1 = self.eta
         for k in range(self.admm_iter_num):
 
             denoisor = self.denoisor.get_denoisor(k)
@@ -119,7 +113,7 @@ class MixturePnP(nn.Module):
                 y0 = y1
             
             y2, sigma2, x2, gamma2, S2, z2, W2, beta2, eta2 = self.ADMM(
-                self, denoisor, self.ind, y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1)
+                denoisor, self.ind, y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1)
 
             if checkpoint.is_available():
                 checkpoint.update(x2)

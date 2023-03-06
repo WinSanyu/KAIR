@@ -31,7 +31,6 @@
       , "beta": 1.1
       , "eta": 26.5
       , "admm_iter_num": 5
-      , "eps": 1e-8
       , "denoisor": "sndncnn_single"
       , "denoisor_pth": "../model_zoo/sndncnn15.pth"
       , "max_denoisor_load_len": -1

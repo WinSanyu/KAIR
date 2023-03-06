@@ -10,6 +10,7 @@ def unpack_opt(opt):
     opt['datasets']['test']['sigma_test'] = opt['sigma']
     opt['datasets']['test']['sp'] = opt['sp']
     test_loader = get_test_loader(opt)
+    opt['netG']['sigma'] = opt['sigma']
     model = define_Model(opt)
     return model, test_loader
 
