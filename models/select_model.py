@@ -26,6 +26,9 @@ def define_Model(opt):
     
     elif model == 'pnp_checkpoint':
         from models.model_checkpoint import ModelCheckpoint as M
+    
+    elif model == 'amf':
+        from models.model_amf import ModelAMF as M
 
     else:
         raise NotImplementedError('Model [{:s}] is not defined.'.format(model))

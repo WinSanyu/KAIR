@@ -60,11 +60,11 @@ class Intermediate:
 
 class MixturePnP(nn.Module):
 
-    def init_value(self, f):
+    def init_value(self, f, amf):
         self.ind = ((f != 0) & (f != 255)).long()
-        self.im_init = f # adpmedft(f) * (1 - self.ind) + f * self.ind
-        x1 = f # adpmedft(f)
-        x0 = f # adpmedft(f)
+        self.im_init = amf * (1 - self.ind) + f * self.ind
+        x1 = amf
+        x0 = amf
         y1 = f
         y0 = f
         z1 = f
@@ -97,11 +97,11 @@ class MixturePnP(nn.Module):
         beta = 1.2 * beta   # TODO finetune
         return y, sigma, x, gamma, S, z, W, beta, eta
 
-    def forward(self, y, H=None):
+    def forward(self, y, amf, H=None):
         
         checkpoint = Intermediate(H)
 
-        y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y)
+        y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y, amf)
         sigma1 = self.noise_level
         beta1 = self.beta
         eta1 = self.eta

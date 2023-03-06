@@ -35,6 +35,9 @@ def define_Dataset(dataset_opt):
     elif dataset_type in ['mixture']:
         from data.dataset_mixture import DatasetMixture as D
 
+    elif dataset_type in ['amf']:
+        from data.dataset_amf import DatasetAMF as D
+
     # -----------------------------------------
     # super-resolution
     # -----------------------------------------
