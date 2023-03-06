@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import utils.utils_image as util
-# from pnp.mixture_admm import admm
+from pnp.mixture_admm import *
 
 class Intermediate:
     def __init__(self, GT):
@@ -61,50 +61,71 @@ class Intermediate:
 class MixturePnP(nn.Module):
 
     def init_value(self, f):
+        self.ind = ((f != 0) & (f != 255)).long()
+        self.im_init = adpmedft(f) * (1 - self.ind) + f * self.ind
+        x1 = adpmedft(f)
+        x0 = adpmedft(f)
+        y1 = f
+        y0 = f
         z1 = f
         z0 = f
-        x1 = f
-        x0 = f
         gamma1 = torch.zeros_like(f)
         gamma0 = torch.zeros_like(f)
-        sigma1 = torch.zeros_like(f)
-        sigma0 = torch.zeros_like(f)
         S1 = torch.zeros_like(f)
         S0 = torch.zeros_like(f)
-        return sigma1, x1, gamma1, S1, z1, sigma0, x0, gamma0, S0, z0
+        W1 = torch.div(20, torch.abs(f - self.im_ini))
+        W0 = torch.div(20, torch.abs(f - self.im_ini))
+        return y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0
 
-    def __init__(self, beta, eta, admm_iter_num, eps, denoisor):
+    def __init__(self, noise_level, beta, eta, admm_iter_num, eps, denoisor):
         super(MixturePnP, self).__init__()
-
+        
+        self.noise_level = noise_level
         self.beta = beta
         self.eta  = eta
         self.admm_iter_num = admm_iter_num
-        self.eps  = eps
+        # self.eps  = eps
 
         self.denoisor = denoisor
 
-    def ADMM(self, denoisor, y, sigma1, x1, gamma1, S1, z1):
-        admm = lambda denoisor,y,a,b,c,d,e: (a,b,c,d,e)
-        return admm(denoisor, y, sigma1, x1, gamma1, S1, z1)
+    # def ADMM(self, denoisor, y, sigma1, x1, gamma1, S1, z1):
+    #     admm = lambda denoisor,y,a,b,c,d,e: (a,b,c,d,e)
+    #     return admm(denoisor, y, sigma1, x1, gamma1, S1, z1)
+    def ADMM(self, denoiser, ind, y, sigma, x, gamma, S, z, W, beta, eta):
+        S = subproblem_S(y - x, 1./ W^2)
+        z = subproblem_z(x, gamma, beta, eta)
+        x = subproblem_x(beta, sigma, z, gamma, y, S)
+        W = subproblem_W(y, x, S)
+        sigma = subproblem_sigma(y, x, S, ind)
+        gamma = subproblem_gamma(gamma, beta, x, z)
+        beta = 1.2 * beta   # TODO finetune
+        return y, sigma, x, gamma, S, z, W, beta, eta
+
+
 
     def forward(self, y, H=None):
         
         checkpoint = Intermediate(H)
 
-        sigma1, x1, gamma1, S1, z1, sigma0, x0, gamma0, S0, z0 = self.init_value(y)
-
+        y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y)
+        sigma1, sigma0 = self.noise_level 
+        beta1, beta0 = self.beta
+        eta1, eta0 = self.eta
         for k in range(self.admm_iter_num):
 
             denoisor = self.denoisor.get_denoisor(k)
+            if k >= 1:
+                y1 = x1 + 0.5 * (y1 - x1) * self.ind - 0.2 * (self.im_init -  x1)*(1 - self.ind)
+                y0 = y1
             
-            sigma2, x2, gamma2, S2, z2 = self.ADMM(
-                denoisor, y, sigma1, x1, gamma1, S1, z1)
+            y2, sigma2, x2, gamma2, S2, z2, W2, beta2, eta2 = self.ADMM(
+                self, denoisor, self.ind, y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1)
 
             if checkpoint.is_available():
                 checkpoint.update(x2)
 
-            sigma0, x0, gamma0, S0, z0 = sigma1, x1, gamma1, S1, z1
-            sigma1, x1, gamma1, S1, z1 = sigma2, x2, gamma2, S2, z2
+            y0, sigma0, x0, gamma0, S0, z0, W0, beta0, eta0 = y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1
+            y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1 = y2, sigma2, x2, gamma2, S2, z2, W2, beta2, eta2
 
         if checkpoint.is_available():
             x2 = checkpoint.get_best_measure_result()

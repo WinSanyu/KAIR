@@ -1,5 +1,6 @@
 import torch
 from math import log, sqrt
+import numpy as np
 
 # def subproblem_L(Lambda1, Lambda2, beta1, beta2, Y, X2, S2, L2):
 #     Lambda1 += beta1 * (Y - X2 - S2)
@@ -50,8 +51,8 @@ from math import log, sqrt
 def _get_soft(tao):
     return lambda x: torch.nn.functional.relu(torch.abs(x) - tao) * torch.sgn(x)
 
-def subproblem_sigma(y, x, s, N):
-    return torch.sqrt(torch.norm(y - x - s,'fro') / N)
+def subproblem_sigma(y, x, s, ind):
+    return 1.1 * torch.sqrt(torch.norm(torch.mul(y - x - s, ind),'fro') ** 2 / torch.sum(ind))
 
 def subproblem_x(beta, sigma, z, gamma, y, s):
     return (
@@ -63,9 +64,9 @@ def subproblem_gamma(gamma, beta, x1, z1):
     gamma = gamma + beta * (x1 - z1)
     return gamma
 
-def subproblem_S(y, mu, eps=1e-8):
+def subproblem_S(y, mu, eps=2.2204e-16):
     n = y.shape[-1]
-    theta0 = torch.sqrt(torch.sum(y**2, -1)/n)
+    theta0 = torch.sqrt(torch.sum(y**2, -1)/n).view(-1, 1)
 
     alpha = y / (theta0 + eps)
     a = alpha**2
@@ -102,3 +103,50 @@ def subproblem_S(y, mu, eps=1e-8):
 def subproblem_z(x1, gamma, beta, eta):
     denoisor = lambda x, y: x # TODO using network
     denoisor(x1 + gamma/beta, sqrt(eta/beta))
+
+def subproblem_W(y, x, S):
+    return 1 / (torch.abs(y - x - S) + 2.2204e-16)
+
+def adpmedft(img, smax=19):
+    img = img.astype(np.float32) 
+    hImg = img.shape[0]
+    wImg = img.shape[1]
+    m, n = smax, smax
+
+    # 边缘填充
+    hPad = int((m-1) / 2)
+    wPad = int((n-1) / 2)
+    imgPad = np.pad(img.copy(), ((hPad, m-hPad-1), (wPad, n-wPad-1)), mode="edge")
+    imgAdaMedFilter = np.zeros(img.shape)  # 自适应中值滤波器
+    for i in range(hPad, hPad+hImg):
+        for j in range(wPad, wPad+wImg):
+            # 2. 自适应中值滤波器 (Adaptive median filter)
+            ksize = 3
+            k = int(ksize/2)
+            pad = imgPad[i-k:i+k+1, j-k:j+k+1]
+            zxy = img[i-hPad][j-wPad]
+            zmin = np.min(pad)
+            zmed = np.median(pad)
+            zmax = np.max(pad)
+
+            if zmin < zmed < zmax:
+                if zmin < zxy < zmax:
+                    imgAdaMedFilter[i-hPad, j-wPad] = zxy
+                else:
+                    imgAdaMedFilter[i-hPad, j-wPad] = zmed
+            else:
+                while True:
+                    ksize = ksize + 2
+                    if zmin < zmed < zmax or ksize > smax:
+                        break
+                    k = int(ksize / 2)
+                    pad = imgPad[i-k:i+k+1, j-k:j+k+1]
+                    zmed = np.median(pad)
+                    zmin = np.min(pad)
+                    zmax = np.max(pad)
+                if zmin < zmed < zmax or ksize > smax:
+                    if zmin < zxy < zmax:
+                        imgAdaMedFilter[i-hPad, j-wPad] = zxy
+                    else:
+                        imgAdaMedFilter[i-hPad, j-wPad] = zmed
+    return imgAdaMedFilter
