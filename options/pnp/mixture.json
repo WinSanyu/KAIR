@@ -31,8 +31,8 @@
       , "beta": 1.1
       , "eta": 26.5
       , "admm_iter_num": 5
-      , "denoisor": "dncnn"
-      , "denoisor_pth": "../model_zoo/dncnn_15.pth"
+      , "denoisor": "drunet"
+      , "denoisor_pth": "../model_zoo/drunet_gray.pth"
       , "max_denoisor_load_len": 100
     }
   

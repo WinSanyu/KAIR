@@ -12,6 +12,8 @@ def select_denoisor(opt):
         denoisor = Denoisor_SNDnCNN(denoisor_len)
     elif denoisor_type == 'dncnn':
         denoisor = Denoisor_DnCNN(denoisor_len)
+    elif denoisor_type == 'drunet':
+        denoisor = Denoisor_DRUNet(denoisor_len)
     return denoisor
 
 class Denoisor(nn.Module):
@@ -110,3 +112,30 @@ class Denoisor_DnCNN(Denoisor):
 
     def get_denoisor(self, i):
         return getattr(self, 'denoisor' + str(i))
+    
+class Denoisor_DRUNet(Denoisor):
+    def __init__(self, len_denoisor):
+        super(Denoisor_DRUNet, self).__init__()
+        self.len_denoisor = len_denoisor
+        n_channels = 1
+        from models.network_unet import UNetRes as Net
+        for i in range(len_denoisor):
+            setattr(self, 'denoisor' + str(i), 
+                Net(in_nc=n_channels+1, out_nc=n_channels, bias=False)
+            )
+
+    def load(self, pth, max_load_len):
+        for i in range(min(self.len_denoisor, max_load_len)):
+            denoisor_i = self.get_denoisor(i)
+            d = torch.load(pth)
+            denoisor_i.load_state_dict(d)
+
+    def get_denoisor(self, i):
+        return getattr(self, 'denoisor' + str(i))
+    
+    def denoise(self, i, x, sigma):
+        '''sigma in [0,255]'''
+        denoisor = self.get_denoisor(i)
+        noise_level_map = torch.ones((1, 1, x.size(2), x.size(3)), dtype=torch.float, device=x.device).mul_(sigma/255.)
+        input = torch.cat((x, noise_level_map), dim=1)
+        return denoisor(input)

@@ -100,8 +100,16 @@ def subproblem_S(y, mu, eps=2.2204e-16):
     S = theta*alpha
     return S
 
-def subproblem_z(denoisor, x1, gamma, beta, eta):
-    return denoisor(x1 + gamma/beta) # , sqrt(eta/beta))
+def drunet_denoise(denoisor, x, sigma):
+    noise_level_map = torch.ones((1, 1, x.size(2), x.size(3)), dtype=torch.float, device=x.device).mul_(sigma/255.)
+    input = torch.cat((x, noise_level_map), dim=1)
+    return denoisor(input)
+
+def subproblem_z(denoisor, x1, gamma, beta, eta, use_drunet=False):
+    if use_drunet:
+        return drunet_denoise(denoisor, x1 + gamma/beta, sqrt(eta/beta))
+    else: # use dncnn
+        return denoisor(x1 + gamma/beta) #, sqrt(eta/beta))   
 
 def subproblem_W(y, x, S):
     return 1 / (torch.abs(y - x - S) + 2.2204e-16)
