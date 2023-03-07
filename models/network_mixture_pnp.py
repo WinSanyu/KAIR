@@ -89,7 +89,7 @@ class MixturePnP(nn.Module):
 
     def ADMM(self, denoiser, ind, y, sigma, x, gamma, S, z, W, beta, eta):
         S = subproblem_S(y - x, 1./ W**2)
-        z = subproblem_z(denoiser, x, gamma, beta, eta)
+        z = subproblem_z(denoiser, x, gamma, beta, eta, True)
         x = subproblem_x(beta, sigma, z, gamma, y, S)
         W = subproblem_W(y, x, S)
         sigma = subproblem_sigma(y, x, S, ind)

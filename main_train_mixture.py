@@ -43,7 +43,7 @@ from models.select_model import define_Model
 '''
 
 
-def main(json_path='options/train_mixture.json'):
+def main(json_path='options/unrolling_mixture.json'):
 
     '''
     # ----------------------------------------
@@ -77,6 +77,13 @@ def main(json_path='options/train_mixture.json'):
     # return None for missing key
     # ----------------------------------------
     opt = option.dict_to_nonedict(opt)
+    opt['datasets']['train']['sigma'] = opt['sigma']
+    opt['datasets']['train']['sigma_test'] = opt['sigma']
+    opt['datasets']['test']['sigma'] = opt['sigma']
+    opt['datasets']['test']['sigma_test'] = opt['sigma']
+    opt['datasets']['train']['sp'] = opt['sp']
+    opt['datasets']['test']['sp'] = opt['sp']
+    opt['netG']['sigma'] = opt['sigma']
 
     # ----------------------------------------
     # configure logger
@@ -139,6 +146,10 @@ def main(json_path='options/train_mixture.json'):
     logger.info(model.info_network())
     model.init_train()
     logger.info(model.info_params())
+
+    if opt['netG']['net_type'] == 'mixture_pnp':
+        model.disable_checkpoint()
+        print('disable_checkpoint')
 
     '''
     # ----------------------------------------

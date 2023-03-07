@@ -66,7 +66,7 @@ def subproblem_gamma(gamma, beta, x1, z1):
 
 def subproblem_S(y, mu, eps=2.2204e-16):
     n = y.shape[-1]
-    theta0 = torch.sqrt(torch.sum(y**2, -1)/n).view(-1, 1)
+    theta0 = torch.sqrt(torch.sum(y**2, -1)/n).unsqueeze(-1)
 
     alpha = y / (theta0 + eps)
     a = alpha**2
@@ -101,7 +101,7 @@ def subproblem_S(y, mu, eps=2.2204e-16):
     return S
 
 def drunet_denoise(denoisor, x, sigma):
-    noise_level_map = torch.ones((1, 1, x.size(2), x.size(3)), dtype=torch.float, device=x.device).mul_(sigma/255.)
+    noise_level_map = torch.ones((x.size(0), 1, x.size(2), x.size(3)), dtype=torch.float, device=x.device).mul_(sigma/255.)
     input = torch.cat((x, noise_level_map), dim=1)
     return denoisor(input)
 
