@@ -1,5 +1,5 @@
 {
-    "task": "cpnp2"  //  root/task/images-models-options
+    "task": "cpnp2_5"  //  root/task/images-models-options
     , "model": "plain" // "plain"
     , "gpu_ids": [0]
   
@@ -15,19 +15,19 @@
     , "datasets": {
       "train": {
         "name": "train_dataset"           // just name
-        , "dataset_type": "rician"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "trainsets/trainH"// path of H training dataset
+        , "dataset_type": "rician"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+        , "dataroot_H": "trainsets/lsq"   // path of H training dataset
         , "dataroot_L": null              // path of L training dataset
-        , "H_size": 40                    // patch size 40 | 64 | 96 | 128 | 192
+        , "H_size": 64                    // patch size 40 | 64 | 96 | 128 | 192
   
         , "dataloader_shuffle": true
         , "dataloader_num_workers": 8
-        , "dataloader_batch_size": 32     // batch size 1 | 16 | 32 | 48 | 64 | 128
+        , "dataloader_batch_size": 16     // batch size 1 | 16 | 32 | 48 | 64 | 128
       }
       , "test": {
         "name": "test_dataset"            // just name
         , "dataset_type": "rician"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
-        , "dataroot_H": "testsets/pd"     // path of H testing dataset
+        , "dataroot_H": "testsets/brain4"     // path of H testing dataset
         , "dataroot_L": null              // path of L testing dataset
       }
     }
@@ -40,13 +40,14 @@
       , "init_gain": 0.2
 
       , "lamb": 200
-      , "admm_iter_num": 7
-      , "irl1_iter_num": 1
+      , "admm_iter_num": 6
+      , "irl1_iter_num": 3
       , "mu": 0.5
+      , "rho": 0.99
       , "eps": 1e-5
-      , "denoisor": "sndncnn"
+      , "denoisor": "sndncnn_single"
       , "denoisor_pth": "model_zoo/sndncnn15.pth"
-      , "denoisor_load_pretrain": 6
+      , "max_denoisor_load_len": 6
     }
   
     , "train": {
@@ -58,15 +59,15 @@
       , "G_optimizer_clipgrad": null      // unused
   
       , "G_scheduler_type": "MultiStepLR" // "MultiStepLR" is enough
-      , "G_scheduler_milestones": [200000, 400000, 600000, 800000, 1000000, 2000000]
-      , "G_scheduler_gamma": 0.5
+      , "G_scheduler_milestones": [700, 1400, 2000, 4000, 10000, 20000]
+      , "G_scheduler_gamma": 0.1
   
       , "G_regularizer_orthstep": null    // unused
       , "G_regularizer_clipstep": null    // unused
   
-      , "checkpoint_test": 200            // for testing
-      , "checkpoint_save": 5000           // for saving model
-      , "checkpoint_print": 2000          // for print
+      , "checkpoint_test": 50             // for testing
+      , "checkpoint_save": 50             // for saving model
+      , "checkpoint_print": 50            // for print
     }
   }
   

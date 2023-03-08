@@ -147,10 +147,6 @@ def main(json_path='options/unrolling_mixture.json'):
     model.init_train()
     logger.info(model.info_params())
 
-    if opt['netG']['net_type'] == 'mixture_pnp':
-        model.disable_checkpoint()
-        print('disable_checkpoint')
-
     '''
     # ----------------------------------------
     # Step--4 (main training)

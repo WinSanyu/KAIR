@@ -41,7 +41,7 @@ from models.select_model import define_Model
 # --------------------------------------------
 '''
 
-def main(json_path='options/train_cpnp2.json'):
+def main(json_path='options/train_cpnp2_5.json'):
 
     '''
     # ----------------------------------------

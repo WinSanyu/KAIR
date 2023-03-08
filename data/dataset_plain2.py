@@ -4,7 +4,7 @@ import torch.utils.data as data
 import utils.utils_image as util
 
 
-class DatasetAMF(data.Dataset):
+class DatasetPlain2(data.Dataset):
     '''
     # -----------------------------------------
     # Get L/H for image-to-image mapping.
@@ -15,7 +15,7 @@ class DatasetAMF(data.Dataset):
     '''
 
     def __init__(self, opt):
-        super(DatasetAMF, self).__init__()
+        super(DatasetPlain2, self).__init__()
         print('Get L/H for image-to-image mapping. Both "paths_L" and "paths_H" are needed.')
         self.opt = opt
         self.n_channels = opt['n_channels']
@@ -25,11 +25,11 @@ class DatasetAMF(data.Dataset):
         # get the path of L/H
         # ------------------------------------
         self.paths_H = util.get_image_paths(opt['dataroot_H'])
-        self.paths_AMF = util.get_image_paths(opt['dataroot_AMF'])
+        self.paths_C = util.get_image_paths(opt['dataroot_C'])
         self.paths_L = util.get_image_paths(opt['dataroot_L'])
 
         assert self.paths_H, 'Error: H path is empty.'
-        assert self.paths_AMF, 'Error: AMF path is empty.'
+        assert self.paths_C, 'Error: C path is empty.'
         assert self.paths_L, 'Error: L path is empty. Plain dataset assumes both L and H are given!'
         if self.paths_L and self.paths_H:
             assert len(self.paths_L) == len(self.paths_H), 'L/H mismatch - {}, {}.'.format(len(self.paths_L), len(self.paths_H))
@@ -49,10 +49,10 @@ class DatasetAMF(data.Dataset):
         img_L = util.imread_uint(L_path, self.n_channels)
 
         # ------------------------------------
-        # get AMF image
+        # get C image
         # ------------------------------------
-        AMF_path = self.paths_AMF[index]
-        img_AMF = util.imread_uint(AMF_path, self.n_channels)        
+        C_path = self.paths_C[index]
+        img_C = util.imread_uint(C_path, self.n_channels)        
 
         # ------------------------------------
         # if train, get L/H patch pair
@@ -68,20 +68,20 @@ class DatasetAMF(data.Dataset):
             rnd_w = random.randint(0, max(0, W - self.patch_size))
             patch_L = img_L[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
             patch_H = img_H[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
-            patch_AMF = img_AMF[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
+            patch_C = img_C[rnd_h:rnd_h + self.patch_size, rnd_w:rnd_w + self.patch_size, :]
 
             # --------------------------------
             # augmentation - flip and/or rotate
             # --------------------------------
             mode = random.randint(0, 7)
             patch_L, patch_H = util.augment_img(patch_L, mode=mode), util.augment_img(patch_H, mode=mode)
-            patch_AMF = util.augment_img(patch_AMF, mode=mode)
+            patch_C = util.augment_img(patch_C, mode=mode)
 
             # --------------------------------
             # HWC to CHW, numpy(uint) to tensor
             # --------------------------------
             img_L, img_H = util.uint2tensor3(patch_L), util.uint2tensor3(patch_H)
-            img_AMF = util.uint2tensor3(patch_AMF)
+            img_C = util.uint2tensor3(patch_C)
 
         else:
 
@@ -89,10 +89,10 @@ class DatasetAMF(data.Dataset):
             # HWC to CHW, numpy(uint) to tensor
             # --------------------------------
             img_L, img_H = util.uint2tensor3(img_L), util.uint2tensor3(img_H)
-            img_AMF = util.uint2tensor3(img_AMF)
+            img_C = util.uint2tensor3(img_C)
 
-        return {'L': img_L, 'H': img_H, 'AMF': img_AMF,
-                'L_path': L_path, 'H_path': H_path, 'AMF_path': AMF_path}
+        return {'L': img_L, 'H': img_H, 'C': img_C,
+                'L_path': L_path, 'H_path': H_path, 'C_path': C_path}
 
     def __len__(self):
         return len(self.paths_H)

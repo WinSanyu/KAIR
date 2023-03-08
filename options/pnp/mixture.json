@@ -1,6 +1,6 @@
 {
     "task": "mixture_pnp"  //  root/task/images-models-options
-    , "model": "amf" // "plain"
+    , "model": "pnp2" // "plain"
     , "gpu_ids": [0]
     , "sigma": 10      // 12.75, 25, 38.25, 51
     , "sp": 10
@@ -14,10 +14,10 @@
     , "datasets": {
       "test": {
         "name": "test_dataset"                 // just name
-        , "dataset_type": "amf"
+        , "dataset_type": "plain2"
         , "dataroot_H": "../testsets/set12/"         // path of H testing dataset
         , "dataroot_L": "../testsets/set12_noise/"   // path of L testing dataset
-        , "dataroot_AMF": "../testsets/set12_amf/"   // path of L testing dataset
+        , "dataroot_C": "../testsets/set12_amf/"     // path of L testing dataset
       }
     }
   

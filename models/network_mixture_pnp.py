@@ -51,7 +51,7 @@ class Intermediate:
         return self.best_measure_result
    
     def _get_intermediate_results(self, u1, img_H):
-        pre_i = torch.clamp(u1 / 255., 0., 1.)
+        pre_i = torch.clamp(u1, 0., 1.)
         img_E = util.tensor2uint(pre_i)
         img_H = util.tensor2uint(img_H)
         psnr = util.calculate_psnr(img_E, img_H, border=0)
@@ -61,7 +61,7 @@ class Intermediate:
 class MixturePnP(nn.Module):
 
     def init_value(self, f, amf):
-        self.ind = ((f != 0) & (f != 255)).long()
+        self.ind = ((f != 0.) & (f != 1.)).long()
         self.im_init = amf * (1 - self.ind) + f * self.ind
         x1 = amf
         x0 = amf

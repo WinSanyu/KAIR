@@ -1,6 +1,6 @@
 {
     "task": "mixture_unrolling"  //  root/task/images-models-options
-    , "model": "amf" // "plain"
+    , "model": "plain2"// "plain"
     , "gpu_ids": [0]
     , "sigma": 10      // 12.75, 25, 38.25, 51
     , "sp": 10
@@ -14,10 +14,10 @@
     , "datasets": {
         "train": {
             "name": "train_dataset"           // just name
-            , "dataset_type": "amf"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+            , "dataset_type": "plain2"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
             , "dataroot_H": "trainsets/div2k/"  // path of H testing dataset
             , "dataroot_L": "trainsets/div2k_noise/"   // path of L testing dataset
-            , "dataroot_AMF": "trainsets/div2k_amf/"   // path of L testing dataset
+            , "dataroot_C": "trainsets/div2k_amf/"   // path of L testing dataset
             , "H_size": 64                    // patch size 40 | 64 | 96 | 128 | 192
       
             , "dataloader_shuffle": true
@@ -26,10 +26,10 @@
           }
         , "test": {
         "name": "test_dataset"                 // just name
-        , "dataset_type": "amf"
+        , "dataset_type": "plain2"
         , "dataroot_H": "testsets/set12/"         // path of H testing dataset
         , "dataroot_L": "testsets/set12_noise/"   // path of L testing dataset
-        , "dataroot_AMF": "testsets/set12_amf/"   // path of L testing dataset
+        , "dataroot_C": "testsets/set12_amf/"   // path of L testing dataset
       }
     }
   

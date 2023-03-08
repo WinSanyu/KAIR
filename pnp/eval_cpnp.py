@@ -14,7 +14,7 @@ def unpack_opt(opt):
     return model, test_loader
 
 def _get_json_path():
-    json_path = '../options/pnp/pnp_sndncnn.json'
+    json_path = '../options/pnp/pnp_sndncnn5.json'
     parser = argparse.ArgumentParser()
     parser.add_argument('-opt', type=str, default=json_path, help='Path to option JSON file.')
     json_path = parser.parse_args().opt
