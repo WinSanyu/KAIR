@@ -136,6 +136,6 @@ class Denoisor_DRUNet(Denoisor):
     def denoise(self, i, x, sigma):
         '''sigma in [0,255]'''
         denoisor = self.get_denoisor(i)
-        noise_level_map = torch.ones((1, 1, x.size(2), x.size(3)), dtype=torch.float, device=x.device).mul_(sigma/255.)
+        noise_level_map = torch.ones_like(x).mul_(sigma/255.)
         input = torch.cat((x, noise_level_map), dim=1)
         return denoisor(input)

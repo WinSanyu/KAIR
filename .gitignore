@@ -7,6 +7,7 @@ denoising/
 pnp/denoising/
 superresolution/
 results/
-pnp/eval_cpnp.py
+pnp/cpnp_admm.py
+pnp/mixture_admm.py
 *.patch
 *.pth
