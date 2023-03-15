@@ -14,6 +14,8 @@ def select_denoisor(opt):
         denoisor = Denoisor_DnCNN(denoisor_len)
     elif denoisor_type == 'drunet':
         denoisor = Denoisor_DRUNet(denoisor_len)
+    elif denoisor_type == 'ddpm_unet':
+        denoisor = Denoisor_DDPM_UNet(denoisor_len)
     return denoisor
 
 class Denoisor(nn.Module):
@@ -139,3 +141,18 @@ class Denoisor_DRUNet(Denoisor):
         noise_level_map = torch.ones_like(x).mul_(sigma/255.)
         input = torch.cat((x, noise_level_map), dim=1)
         return denoisor(input)
+    
+class Denoisor_DDPM_UNet(Denoisor):
+    def __init__(self, len_denoisor):
+        super(Denoisor_DDPM_UNet, self).__init__()
+        self.len_denoisor = len_denoisor
+        from models.sr_ddpm.unet import UNet as Net
+        self.denoisor = Net()
+
+    def load(self, pth, max_load_len=-1):
+        denoisor = self.get_denoisor()
+        d = torch.load(pth)
+        self.denoisor.load_state_dict(d)
+
+    def get_denoisor(self, i=-1):
+        return self.denoisor
