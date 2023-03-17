@@ -51,7 +51,7 @@ class Intermediate:
         return self.best_measure_result
    
     def _get_intermediate_results(self, u1, img_H):
-        pre_i = torch.clamp(u1, 0., 1.)
+        pre_i = torch.clamp(u1 / 255, 0., 1.)
         img_E = util.tensor2uint(pre_i)
         img_H = util.tensor2uint(img_H)
         psnr = util.calculate_psnr(img_E, img_H, border=0)
@@ -61,7 +61,7 @@ class Intermediate:
 class MixturePnP(nn.Module):
 
     def init_value(self, f, amf):
-        self.ind = ((f != 0.) & (f != 1.)).long()
+        self.ind = ((f != 0) & (f != 255)).long()
         self.im_init = amf * (1 - self.ind) + f * self.ind
         x1 = amf
         x0 = amf
@@ -88,23 +88,26 @@ class MixturePnP(nn.Module):
         self.denoisor = denoisor
 
     def ADMM(self, denoiser, ind, y, sigma, x, gamma, S, z, W, beta, eta):
-        S = subproblem_S(y - x, 1./ W**2)
-        z = subproblem_z(denoiser, x, gamma, beta, eta, True)
+        S = subproblem_S(y - x, 1./ W**2, gst=True)
+        x /= 255
+        z = subproblem_z(denoiser, x, gamma, beta, eta, use_drunet=True)
+        z *= 255
+        x *= 255
         x = subproblem_x(beta, sigma, z, gamma, y, S)
         W = subproblem_W(y, x, S)
         sigma = subproblem_sigma(y, x, S, ind)
         gamma = subproblem_gamma(gamma, beta, x, z)
-        beta = 1.2 * beta   # TODO finetune
         return y, sigma, x, gamma, S, z, W, beta, eta
 
     def forward(self, y, amf, H=None):
         
         checkpoint = Intermediate(H)
 
-        y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y, amf)
+        y1, x1, gamma1, S1, z1, W1, y0, x0, gamma0, S0, z0, W0 = self.init_value(y * 255, amf * 255)
         sigma1 = self.noise_level
         beta1 = self.beta
         eta1 = self.eta
+        Delta1 = 0
         for k in range(self.admm_iter_num):
 
             denoisor = self.denoisor.get_denoisor(k)
@@ -114,6 +117,11 @@ class MixturePnP(nn.Module):
             
             y2, sigma2, x2, gamma2, S2, z2, W2, beta2, eta2 = self.ADMM(
                 denoisor, self.ind, y1, sigma1, x1, gamma1, S1, z1, W1, beta1, eta1)
+            
+            Delta2 = (torch.norm(x2-x1) + torch.norm(z2-z1)) / torch.sqrt(torch.tensor(x2.numel()))
+            if Delta2 >= 0.5 * Delta1:
+                beta2 = min(100 * beta2, 1e15)
+            Delta1 = Delta2
 
             if checkpoint.is_available():
                 checkpoint.update(x2)
@@ -124,4 +132,4 @@ class MixturePnP(nn.Module):
         if checkpoint.is_available():
             x2 = checkpoint.get_best_measure_result()
 
-        return x2 # / 255.
+        return x2  / 255.

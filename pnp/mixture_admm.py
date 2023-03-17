@@ -51,6 +51,23 @@ import numpy as np
 def _get_soft(tao):
     return lambda x: torch.nn.functional.relu(torch.abs(x) - tao) * torch.sgn(x)
 
+def GST(y, lambda_, p):
+    J = 2
+    tau = (2 * lambda_ * (1 - p)) ** (1 / (2 - p)) + p * lambda_ * (2 * (1 - p) * lambda_) ** ((p - 1) / (2 - p))
+    x = torch.zeros_like(y)
+    i0 = torch.abs(y) > tau
+
+    if i0.sum() >= 1:
+        lambda_ = lambda_[i0]
+        y0 = y[i0]
+        t = torch.abs(y0)
+
+        for j in range(J):
+            t = torch.abs(y0) - p * lambda_ * (t) ** (p - 1)
+
+        x[i0] = torch.sign(y0) * t
+    return x
+
 def subproblem_sigma(y, x, s, ind):
     return 1.1 * torch.sqrt(torch.norm(torch.mul(y - x - s, ind),'fro') ** 2 / torch.sum(ind))
 
@@ -64,7 +81,7 @@ def subproblem_gamma(gamma, beta, x1, z1):
     gamma = gamma + beta * (x1 - z1)
     return gamma
 
-def subproblem_S(y, mu, eps=2.2204e-16):
+def subproblem_S(y, mu, eps=2.2204e-16, gst=False):
     n = y.shape[-1]
     theta0 = torch.sqrt(torch.sum(y**2, -1)/n).unsqueeze(-1)
 
@@ -95,8 +112,12 @@ def subproblem_S(y, mu, eps=2.2204e-16):
     theta = t1
 
     aa = y / (theta + eps)
-    thr = 2*sqrt(2)*mu / (theta**2 + eps)
-    alpha = _get_soft(thr)(aa)
+    if gst:
+        thr = torch.div(2 ** 0.75 * mu, (theta ** 2 + eps))
+        alpha = GST(aa, thr, 1.5)
+    else:  
+        thr = 2*sqrt(2)*mu / (theta**2 + eps)
+        alpha = _get_soft(thr)(aa)
     S = theta*alpha
     return S
 
@@ -113,47 +134,3 @@ def subproblem_z(denoisor, x1, gamma, beta, eta, use_drunet=False):
 
 def subproblem_W(y, x, S):
     return 1 / (torch.abs(y - x - S) + 2.2204e-16)
-
-def adpmedft(img, smax=19):
-    img = img.astype(np.float32) 
-    hImg = img.shape[0]
-    wImg = img.shape[1]
-    m, n = smax, smax
-
-    # 边缘填充
-    hPad = int((m-1) / 2)
-    wPad = int((n-1) / 2)
-    imgPad = np.pad(img.copy(), ((hPad, m-hPad-1), (wPad, n-wPad-1)), mode="edge")
-    imgAdaMedFilter = np.zeros(img.shape)  # 自适应中值滤波器
-    for i in range(hPad, hPad+hImg):
-        for j in range(wPad, wPad+wImg):
-            # 2. 自适应中值滤波器 (Adaptive median filter)
-            ksize = 3
-            k = int(ksize/2)
-            pad = imgPad[i-k:i+k+1, j-k:j+k+1]
-            zxy = img[i-hPad][j-wPad]
-            zmin = np.min(pad)
-            zmed = np.median(pad)
-            zmax = np.max(pad)
-
-            if zmin < zmed < zmax:
-                if zmin < zxy < zmax:
-                    imgAdaMedFilter[i-hPad, j-wPad] = zxy
-                else:
-                    imgAdaMedFilter[i-hPad, j-wPad] = zmed
-            else:
-                while True:
-                    ksize = ksize + 2
-                    if zmin < zmed < zmax or ksize > smax:
-                        break
-                    k = int(ksize / 2)
-                    pad = imgPad[i-k:i+k+1, j-k:j+k+1]
-                    zmed = np.median(pad)
-                    zmin = np.min(pad)
-                    zmax = np.max(pad)
-                if zmin < zmed < zmax or ksize > smax:
-                    if zmin < zxy < zmax:
-                        imgAdaMedFilter[i-hPad, j-wPad] = zxy
-                    else:
-                        imgAdaMedFilter[i-hPad, j-wPad] = zmed
-    return imgAdaMedFilter
