@@ -1,6 +1,6 @@
 {
     "task": "sndncnn"  //  root/task/images-models-options
-    , "model": "pnp_checkpoint" // "plain"
+    , "model": "pnp"   // "plain"
     , "gpu_ids": [0]
     , "sigma": 25.5    // 12.75, 25.5, 38.25, 51
   

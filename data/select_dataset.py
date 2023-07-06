@@ -32,6 +32,9 @@ def define_Dataset(dataset_opt):
     elif dataset_type in ['fdncnn', 'denoising-noiselevelmap']:
         from data.dataset_fdncnn import DatasetFDnCNN as D
 
+    elif dataset_type in ['mixture']:
+        from data.dataset_mixture import DatasetMixture as D
+
     # -----------------------------------------
     # super-resolution
     # -----------------------------------------
@@ -84,6 +87,9 @@ def define_Dataset(dataset_opt):
     # -----------------------------------------
     # common
     # -----------------------------------------
+    elif dataset_type in ['plain2']:
+        from data.dataset_plain2 import DatasetPlain2 as D
+
     elif dataset_type in ['plain']:
         from data.dataset_plain import DatasetPlain as D
 

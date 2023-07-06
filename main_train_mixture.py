@@ -4,6 +4,7 @@ import argparse
 import time
 import random
 import numpy as np
+from collections import OrderedDict
 import logging
 import torch
 from torch.utils.data import DataLoader
@@ -41,7 +42,8 @@ from models.select_model import define_Model
 # --------------------------------------------
 '''
 
-def main(json_path='options/train_cpnp2_5.json'):
+
+def main(json_path='options/unrolling_mixture.json'):
 
     '''
     # ----------------------------------------
@@ -79,6 +81,8 @@ def main(json_path='options/train_cpnp2_5.json'):
     opt['datasets']['train']['sigma_test'] = opt['sigma']
     opt['datasets']['test']['sigma'] = opt['sigma']
     opt['datasets']['test']['sigma_test'] = opt['sigma']
+    opt['datasets']['train']['sp'] = opt['sp']
+    opt['datasets']['test']['sp'] = opt['sp']
     opt['netG']['sigma'] = opt['sigma']
 
     # ----------------------------------------
@@ -221,8 +225,7 @@ def main(json_path='options/train_cpnp2_5.json'):
                     # -----------------------
                     current_psnr = util.calculate_psnr(E_img, H_img, border=border)
                     current_ssim = util.calculate_ssim(E_img, H_img, border=border)
-
-                    logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB; SSIM: {:.4f}'.format(idx, image_name_ext, current_psnr, current_ssim))
+                    logger.info('{:->4d}--> {:>10s} | {:<4.2f}dB | {:<4.4f}dB'.format(idx, image_name_ext, current_psnr, current_ssim))
 
                     avg_psnr += current_psnr
                     avg_ssim += current_ssim
@@ -231,11 +234,7 @@ def main(json_path='options/train_cpnp2_5.json'):
                 avg_ssim = avg_ssim / idx
 
                 # testing log
-                logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB; SSIM: {:.4f}\n'.format(epoch, current_step, avg_psnr, avg_ssim))
-                logger.info('lamb: {}'.format(
-                        model.get_bare_model(model.netG).lamb.cpu().detach().numpy()[:-1]
-                    )
-                )
+                logger.info('<epoch:{:3d}, iter:{:8,d}, Average PSNR : {:<.2f}dB, Average SSIM : {:<.4f}\n'.format(epoch, current_step, avg_psnr, avg_ssim))
 
     logger.info('Saving the final model.')
     model.save('latest')
