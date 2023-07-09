@@ -1,4 +1,4 @@
-1. activate env
+1. create env
 ```
 conda activate cpnp python=3.9 -y
 conda activate cpnp
@@ -21,9 +21,10 @@ git clone -b cpnp1 https://github.com/WinSanyu/cpnp.git
 ```
 
 5. download SNDnCNN checkpoint
-```
-# TODO
-```
+download checkpoint from
+
+链接: https://pan.baidu.com/s/1zgclkWipLdC6lt_9ohCohw?pwd=fe2m 提取码: fe2m 复制这段内容后打开百度网盘手机App，操作更方便哦
+
 
 6. run cpnp1
 ```
