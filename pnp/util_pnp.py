@@ -36,7 +36,7 @@ def get_test_loader(opt):
                              drop_last=False, pin_memory=True)
     return test_loader
 
-def eval(model, test_loader, logger):
+def eval(model, test_loader, logger, savepth=None):
     idx = 0
     test_results = OrderedDict()
     test_results['psnr'] = []
@@ -61,6 +61,10 @@ def eval(model, test_loader, logger):
 
         test_results['psnr'].append(psnr)
         test_results['ssim'].append(ssim)
+
+        if savepth:
+            util.mkdir(savepth)
+            util.imsave(img_E, os.path.join(savepth, image_name_ext))
 
     ave_psnr = sum(test_results['psnr']) / len(test_results['psnr'])
     ave_ssim = sum(test_results['ssim']) / len(test_results['ssim'])

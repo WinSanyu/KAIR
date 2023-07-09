@@ -24,7 +24,8 @@ def main():
     json_path = _get_json_path()
     opt = get_opt(json_path)
     logger = gen_logger(opt)
-    eval(*unpack_opt(opt), logger)
+    savepth = '../denoising/cpnp1/'
+    eval(*unpack_opt(opt), logger, savepth)
 
 if __name__ == "__main__":
     main()

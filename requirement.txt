@@ -8,3 +8,4 @@ lmdb
 requests
 timm
 einops
+matplotlib
