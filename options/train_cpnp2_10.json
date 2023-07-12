@@ -1,0 +1,71 @@
+{
+    "task": "cpnp2_10"  //  root/task/images-models-options
+    , "model": "plain" // "plain"
+    , "gpu_ids": [0]
+  
+    , "scale": 1       // broadcast to "netG" if SISR
+    , "n_channels": 1  // broadcast to "datasets", 1 for grayscale, 3 for color
+    , "sigma": 25.5
+  
+    , "path": {
+      "root": "denoising"            // "denoising" | "superresolution"
+      , "pretrained_netG": null      // path of pretrained model
+    }
+  
+    , "datasets": {
+      "train": {
+        "name": "train_dataset"           // just name
+        , "dataset_type": "rician"         // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+        , "dataroot_H": "trainsets/trainH"// path of H training dataset
+        , "dataroot_L": null              // path of L training dataset
+        , "H_size": 40                    // patch size 40 | 64 | 96 | 128 | 192
+  
+        , "dataloader_shuffle": true
+        , "dataloader_num_workers": 8
+        , "dataloader_batch_size": 32     // batch size 1 | 16 | 32 | 48 | 64 | 128
+      }
+      , "test": {
+        "name": "test_dataset"            // just name
+        , "dataset_type": "rician"        // "dncnn" | "dnpatch" for dncnn,  | "fdncnn" | "ffdnet" | "sr" | "srmd" | "dpsr" | "plain" | "plainpatch"
+        , "dataroot_H": "testsets/pd"     // path of H testing dataset
+        , "dataroot_L": null              // path of L testing dataset
+      }
+    }
+  
+    , "netG": {
+      "net_type": "cpnp2"
+  
+      , "init_type": "orthogonal"         // "orthogonal" | "normal" | "uniform" | "xavier_normal" | "xavier_uniform" | "kaiming_normal" | "kaiming_uniform"
+      , "init_bn_type": "uniform"         // "uniform" | "constant"
+      , "init_gain": 0.2
+
+      , "lamb": 350
+      , "admm_iter_num": 6
+      , "irl1_iter_num": 1
+      , "mu": 0.5
+      , "eps": 1e-5
+      , "denoisor": "sndncnn"
+      , "denoisor_pth": "model_zoo/sndncnn15.pth"
+    }
+  
+    , "train": {
+      "G_lossfn_type": "l1"               // "l1" preferred | "l2sum" | "l2" | "ssim" 
+      , "G_lossfn_weight": 1.0            // default
+  
+      , "G_optimizer_type": "adam"        // fixed, adam is enough
+      , "G_optimizer_lr": 1e-5            // learning rate
+      , "G_optimizer_clipgrad": null      // unused
+  
+      , "G_scheduler_type": "MultiStepLR" // "MultiStepLR" is enough
+      , "G_scheduler_milestones": [200000, 400000, 600000, 800000, 1000000, 2000000]
+      , "G_scheduler_gamma": 0.5
+  
+      , "G_regularizer_orthstep": null    // unused
+      , "G_regularizer_clipstep": null    // unused
+  
+      , "checkpoint_test": 50            // for testing
+      , "checkpoint_save": 50           // for saving model
+      , "checkpoint_print": 50          // for print
+    }
+  }
+  

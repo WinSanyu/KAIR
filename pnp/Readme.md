@@ -35,3 +35,12 @@ python eval_cpnp.py -opt ../options/pnp/pnp_sndncnn5.json
 # 10%
 python eval_cpnp.py -opt ../options/pnp/pnp_sndncnn10.json
 ```
+
+7. run cpnp2
+```
+cd cpnp
+# 5%
+python main_train_cpnp2.py -opt options/train_cpnp2_5.json
+# 10%
+python main_train_cpnp2.py -opt options/train_cpnp2_10.json
+```
